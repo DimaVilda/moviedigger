@@ -7,8 +7,8 @@ CREATE TYPE user_state AS ENUM ('LOGGED_IN', 'LOGGED_OUT');
 CREATE TABLE user_information
 (
     id                     VARCHAR(255) NOT NULL,
-    name                   VARCHAR(255) NOT NULL,
-    state                  user_state NOT NULL,
+    name                   VARCHAR(255) NOT NULL, -- unique constaint
+    state                  user_state NOT NULL, -- delete??
 
     CONSTRAINT pk_user_information PRIMARY KEY (id)
 );
@@ -34,7 +34,7 @@ CREATE TABLE movie
     is_winner        TINYINT       NOT NULL,
     office_box_value DECIMAL(10,3) NOT NULL,
 
-    CONSTRAINT pk_movie PRIMARY KEY (id)
+    CONSTRAINT pk_movie PRIMARY KEY (id) --name unique constraint
 );
 
 CREATE TABLE rating
@@ -51,4 +51,6 @@ CREATE TABLE rating
     CONSTRAINT fk_rating_movie FOREIGN KEY (movie_id) REFERENCES movie (id)
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
+
+-- unique constraint user_information_id and movie_id so user cannot rate twice xnj, yt чтоб не накрутить
 );

@@ -1,8 +1,7 @@
 package com.backbase.moviesdigger.auth.service.iml;
 
-import com.backbase.moviesdigger.client.spec.model.LoggedInUserInformation;
 import com.backbase.moviesdigger.exceptions.UnauthorizedException;
-import com.backbase.moviesdigger.utils.consts.KeycloakMethodsUtil;
+import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

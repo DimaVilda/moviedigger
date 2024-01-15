@@ -3,13 +3,12 @@ package com.backbase.moviesdigger.auth.service.iml;
 import com.backbase.moviesdigger.auth.service.UserAuthService;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserInformation;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
+import com.backbase.moviesdigger.client.spec.model.LoggedOutUserResponse;
 import com.backbase.moviesdigger.exceptions.ConflictException;
 import com.backbase.moviesdigger.exceptions.NotFoundException;
 import com.backbase.moviesdigger.exceptions.UnauthorizedException;
-import com.backbase.moviesdigger.utils.consts.KeycloakMethodsUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.backbase.moviesdigger.models.BearerTokenModel;
+import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -19,13 +18,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.*;
@@ -40,6 +33,8 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final KeycloakService keycloakService;
     private final UserPersistenceService userPersistenceService;
     private final KeycloakMethodsUtil keycloakMethodsUtil;
+
+    private final BearerTokenModel tokenWrapper;
 
     @Override
     @Transactional
@@ -59,6 +54,15 @@ public class UserAuthServiceImpl implements UserAuthService {
             throw new ConflictException("A user " + userName + " is already logged in! ");
         }
         return processExistingUserLogin(userName, userPassword); //if user exists but his status is logged out
+    }
+
+    @Override
+    public LoggedOutUserResponse logout() {
+
+        tokenWrapper.getToken();
+       // keycloakMethodsUtil.logoutUser()
+       // keycloakMethodsUtil
+        return null;
     }
 
     @Override

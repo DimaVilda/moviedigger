@@ -12,7 +12,7 @@ paths:
       description: Log in a user using creds (userName and password) in application and allow accessing to use application APIs
       operationId: userLogin
       requestBody:
-        description: Logged in user creds (userName and his password)
+        description: Logged in user creds (userName and password)
         content:
           application/json:
             schema:
@@ -44,7 +44,7 @@ paths:
       tags:
         - userClient
       summary: Logout user
-      description: Log out the user by revoking their tokens.
+      description: Log out the user by revoking his tokens.
       operationId: userLogout
       responses:
         '200':
@@ -52,7 +52,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserLoginStatesEnum"
+                $ref: "#/components/schemas/LoggedOutUserResponse"
         '401':
           description: Unauthorized or invalid token.
           content:
@@ -128,6 +128,18 @@ components:
         refreshExpiresIn:
           type: integer
           format: int32
+    LoggedOutUserResponse:
+      type: object
+      description: Logged out user response with user name and user state
+      properties:
+        userName:
+          type: string
+          example: Dima
+        userStatus:
+          $ref: '#/components/schemas/UserLoginStatesEnum'
+      required:
+        - userName
+        - userState
     UserLoginStatesEnum:
       type: string
       description: Current user login states

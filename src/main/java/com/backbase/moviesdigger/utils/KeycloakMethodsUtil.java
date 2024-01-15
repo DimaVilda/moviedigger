@@ -1,4 +1,4 @@
-package com.backbase.moviesdigger.utils.consts;
+package com.backbase.moviesdigger.utils;
 
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
 import com.backbase.moviesdigger.exceptions.UnauthorizedException;

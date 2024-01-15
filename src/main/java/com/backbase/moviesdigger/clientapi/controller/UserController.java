@@ -4,6 +4,7 @@ import com.backbase.moviesdigger.auth.service.UserAuthService;
 import com.backbase.moviesdigger.client.spec.api.UserClientApi;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserInformation;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
+import com.backbase.moviesdigger.client.spec.model.LoggedOutUserResponse;
 import com.backbase.moviesdigger.client.spec.model.UserLoginStatesEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,9 @@ public class UserController implements UserClientApi {
     }
 
     @Override
-    public ResponseEntity<UserLoginStatesEnum> userLogout() {
-        return null;
+    public ResponseEntity<LoggedOutUserResponse> userLogout() {
+        log.debug("Trying to logout a uswer");
+
+        return new ResponseEntity<>(userAuthService.logout(), HttpStatus.OK);
     }
 }

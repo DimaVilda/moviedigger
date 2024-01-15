@@ -28,6 +28,7 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/moviesdigger
           jwk-set-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/certs
+          user-logout-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/logout
 
 moviesdigger:
   realm-name: moviesdigger

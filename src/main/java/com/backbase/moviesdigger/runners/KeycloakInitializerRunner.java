@@ -1,12 +1,11 @@
 package com.backbase.moviesdigger.runners;
 
-import com.backbase.moviesdigger.utils.consts.KeycloakMethodsUtil;
+import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
 import jakarta.ws.rs.core.Response;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.*;
 import org.keycloak.representations.idm.*;
 import org.springframework.boot.CommandLineRunner;
