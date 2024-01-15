@@ -23,21 +23,21 @@ public class KeycloakService {
 
     private final KeycloakMethodsUtil keycloakMethodsUtil;
 
-    public void createUserInKeycloak(Keycloak keycloak, UsersResource usersResource, LoggedInUserInformation userInfo) {
+    public void createUserInKeycloak(Keycloak keycloak, UsersResource usersResource, String userName, String userPassword) {
         UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setUsername(userInfo.getUserName());
+        userRepresentation.setUsername(userName);
         userRepresentation.setEnabled(true);
 
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(userInfo.getPassword());
+        credential.setValue(userPassword);
         userRepresentation.setCredentials(Collections.singletonList(credential));
 
         Response response = usersResource.create(userRepresentation);
         if (response.getStatus() != 201) {
             log.warn("A new user creation in keycloak failed, instead os 201 created, response is {} ", response.getStatus());
             throw new UnauthorizedException("Failed authorization for user " +
-                    userInfo.getUserName() + ", try again or speak with admin");
+                    userName + ", try again or speak with admin");
         }
 
         keycloakMethodsUtil.assignRealmRoleForUser(keycloak, usersResource, response, REALM_USER_ROLE);

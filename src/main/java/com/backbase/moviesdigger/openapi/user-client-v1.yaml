@@ -33,49 +33,61 @@ paths:
             application/json:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
+        '409':
+          description: Login request conflict for already logged in user.
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
   /client-api/v1/user/logout:
-    post:
+    patch:
       tags:
         - userClient
       summary: Logout user
       description: Log out the user by revoking their tokens.
       operationId: userLogout
-      requestBody:
-        description: Request body containing the access token to be revoked.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                accessToken:
-                  type: string
-            example:
-              accessToken: example_access_token
       responses:
         '200':
           description: User successfully logged out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserLoginStatesEnum"
         '401':
           description: Unauthorized or invalid token.
           content:
             application/json:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
-  /client-api/v1/user/token:
+  /client-api/v1/user/{user-mame}/token:
     get:
       tags:
         - userClient
       summary: Retrieve user access token
-      description: Retrieve an access token using a refresh token.
+      description: Retrieve a new access token from keycloak when the old one is expired
       operationId: getAccessToken
+      parameters:
+        - name: user-mame
+          description: Logged in user name cred.
+          schema:
+            type: string
+          in: path
+          required: true
       responses:
         '200':
-          description: New access token successfully retrieved.
+          description: New access token successfully retrieved
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LoggedInUserResponse"
         '401':
-          description: Unauthorized.
+          description: User is not logged in.
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+        '404':
+          description: A user was not found
           content:
             application/json:
               schema:
@@ -123,4 +135,3 @@ components:
       enum:
         - LOGGED_OUT
         - LOGGED_IN
-        - PENDING

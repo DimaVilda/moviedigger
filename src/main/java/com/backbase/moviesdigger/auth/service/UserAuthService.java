@@ -6,7 +6,7 @@ import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
 /**
  * Service responsible for login/logout users
  */
-public interface UserLoginService {
+public interface UserAuthService {
 
     /**
      * Login user
@@ -16,4 +16,13 @@ public interface UserLoginService {
      * @return - {@link LoggedInUserResponse} - access token, its expiration date, refresh token's expiration date
      */
     LoggedInUserResponse login(LoggedInUserInformation loggedInUserInformation);
+
+    /**
+     * Login user
+     *
+     * @param userMame - logged in user name cred
+     *
+     * @return - {@link LoggedInUserResponse} - access token, its expiration date, refresh token's expiration date
+     */
+    LoggedInUserResponse getAccessToken(String userMame);
 }

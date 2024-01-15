@@ -37,5 +37,4 @@ public class RefreshToken {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_information_id")
     private User userInformation;
-
 }

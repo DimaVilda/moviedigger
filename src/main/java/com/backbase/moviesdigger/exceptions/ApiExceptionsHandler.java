@@ -36,4 +36,13 @@ public class ApiExceptionsHandler {
 
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<Error> conflictExceptionHandler(ConflictException ex) {
+        Error error = new Error();
+        error.setMessage(ex.getMessage());
+        error.setCode(409);
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
 }

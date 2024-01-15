@@ -1,10 +1,10 @@
 package com.backbase.moviesdigger.clientapi.controller;
 
-import com.backbase.moviesdigger.auth.service.UserLoginService;
+import com.backbase.moviesdigger.auth.service.UserAuthService;
 import com.backbase.moviesdigger.client.spec.api.UserClientApi;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserInformation;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
-import com.backbase.moviesdigger.client.spec.model.UserLogoutRequest;
+import com.backbase.moviesdigger.client.spec.model.UserLoginStatesEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,22 +17,24 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserController implements UserClientApi {
 
-    private final UserLoginService userLoginService;
+    private final UserAuthService userAuthService;
 
     @Override
-    public ResponseEntity<LoggedInUserResponse> getAccessToken() {
-        return null;
+    public ResponseEntity<LoggedInUserResponse> getAccessToken(String userMame) {
+        log.debug("Trying to get an access token for a user {}", userMame);
+
+        return new ResponseEntity<>(userAuthService.getAccessToken(userMame), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<LoggedInUserResponse> userLogin(LoggedInUserInformation loggedInUserInformation) {
         log.debug("Trying to log in a user {}", loggedInUserInformation.getUserName());
 
-        return new ResponseEntity<>(userLoginService.login(loggedInUserInformation), HttpStatus.CREATED);
+        return new ResponseEntity<>(userAuthService.login(loggedInUserInformation), HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<Void> userLogout(UserLogoutRequest userLogoutRequest) {
+    public ResponseEntity<UserLoginStatesEnum> userLogout() {
         return null;
     }
 }

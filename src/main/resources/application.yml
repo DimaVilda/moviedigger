@@ -22,6 +22,18 @@ spring:
     console:
       enabled: true
       path: /h2
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/moviesdigger
+          jwk-set-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/certs
+
+moviesdigger:
+  realm-name: moviesdigger
+  public-endpoints:
+    login: client-api/v1/user/login
+    get-access-token: client-api/v1/user/{user-mame}/token
 
 keycloak:
   client:
@@ -31,6 +43,9 @@ keycloak:
       client-id: admin-cli
       admin-username: admin
       admin-password: admin
+  open-id-connect:
+    api:
+      token-endpoint: http://localhost:8080/realms/${moviesdigger.realm-name}/protocol/openid-connect/token
 
 #logging application
 logging:

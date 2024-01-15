@@ -39,4 +39,18 @@ public class UserPersistenceService {
 
        refreshTokenJpaRepository.save(refreshToken);
     }
+
+    public String findRefreshTokenByUserNameIfLoggedIn(String userName) {
+        return userJpaRepository.findRefreshTokenByUserNameIfLoggedIn(userName);
+    }
+
+    public boolean isLoggedInByUserName(String userName) {
+        return userJpaRepository.isLoggedInByUserName(userName);
+    }
+
+    public void updateUserStatusToLoggedIn(String username) {
+       User loggedOutUser = userJpaRepository.findByNameIs(username);
+       loggedOutUser.setState(UserStatesEnum.LOGGED_IN);
+       userJpaRepository.save(loggedOutUser);
+    }
 }
