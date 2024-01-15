@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Client API to authorize user
+  description: This service is a test task for Backbase team and it's role is to serve users to interact with movies
+paths:
+  /client-api/v1/user/login:
+    post:
+      tags:
+        - userClient
+      summary: Start a game
+      description: Log in a user using creds (userName and password) in application and allow accessing to use application APIs
+      operationId: userLogin
+      requestBody:
+        description: Logged in user creds (userName and his password)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoggedInUserInformation'
+            example:
+              userName: Dima
+              password: dima123
+      responses:
+        '201':
+          description: User was successfully logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoggedInUserResponse"
+        '401':
+          description: Failed login.
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+  /client-api/v1/user/logout:
+    post:
+      tags:
+        - userClient
+      summary: Logout user
+      description: Log out the user by revoking their tokens.
+      operationId: userLogout
+      requestBody:
+        description: Request body containing the access token to be revoked.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+            example:
+              accessToken: example_access_token
+      responses:
+        '200':
+          description: User successfully logged out.
+        '401':
+          description: Unauthorized or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+  /client-api/v1/user/token:
+    get:
+      tags:
+        - userClient
+      summary: Retrieve user access token
+      description: Retrieve an access token using a refresh token.
+      operationId: getAccessToken
+      responses:
+        '200':
+          description: New access token successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoggedInUserResponse"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+
+components:
+  schemas:
+    LoggedInUserInformation:
+      type: object
+      description: Request body to login a new user by providing its name and password
+      required:
+        - userName
+        - password
+      properties:
+        userName:
+          description: Logged in user name
+          maxLength: 36
+          minLength: 1
+          type: string
+        password:
+          description: Logged in user password
+          maxLength: 36
+          minLength: 1
+          type: string
+    LoggedInUserResponse:
+      type: object
+      description: Logged in user successful response with access-token, its expiration and refresh token expiration dates from keycloak
+      required:
+        - accessToken
+        - expiresIn
+        - refreshExpiresIn
+      properties:
+        accessToken:
+          type: string
+        expiresIn:
+          type: integer
+          format: int32
+        refreshExpiresIn:
+          type: integer
+          format: int32
+    UserLoginStatesEnum:
+      type: string
+      description: Current user login states
+      default: LOGGED_OUT
+      enum:
+        - LOGGED_OUT
+        - LOGGED_IN
+        - PENDING

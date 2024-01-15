@@ -1,0 +1,22 @@
+components:
+  schemas:
+    Uuid:
+      maxLength: 36
+      minLength: 1
+      pattern: "^[0-9a-f]{32}$|^[0-9a-f-]{36}$"
+      type: string
+      description: Universally Unique Identifier that defines an id attribute only.
+      example:
+        id: 0955e686d31e4216b3dd5d66161d536d
+    Error:
+      type: object
+      description: A general object to catch api errors
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

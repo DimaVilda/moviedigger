@@ -1,0 +1,64 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Client API for moviesdigger application
+  description: This service is a test task for Backbase team and it's role is to serve users to interact with movies
+paths:
+  /client-api/v1/movie/{movie-name}/iswon:
+    get:
+      tags:
+        - movieDiggerClient
+      summary: Get to know if movie is best picture oscar winner
+      description: Returns the best picture oscar winner movie list by movie name parameter
+      operationId: getWinner
+      parameters:
+        - name: movie-name
+          schema:
+            type: string
+          in: path
+          description: movie name
+          required: true
+      responses:
+        '200':
+          description: A list of oscar's best picture winner movies.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetMovieWinners"
+        '400':
+          description: Bad request. The parameters are not valid.
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+        '404':
+          description: A movie name is not found.
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+        '500':
+          description: An unexpected condition was encountered.
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+
+components:
+  schemas:
+    GetMovieWinners:
+      type: array
+      example:
+        - id: 466b8c0e-238e-46f3-9dba-dae01439bc26
+          name: Titanic
+        - id: e83dc6ae-caec-405f-9226-d7f60906c5ef
+          name: Avatar
+      items:
+        $ref: '#/components/schemas/MovieWinnerResponseBody'
+    MovieWinnerResponseBody:
+      required:
+        - id
+        - name
+      example:
+        - 466b8c0e-238e-46f3-9dba-dae01439bc26
+        - Titanic

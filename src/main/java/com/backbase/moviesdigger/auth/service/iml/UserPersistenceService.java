@@ -1,0 +1,42 @@
+package com.backbase.moviesdigger.auth.service.iml;
+
+import com.backbase.moviesdigger.auth.service.domain.RefreshToken;
+import com.backbase.moviesdigger.auth.service.domain.User;
+import com.backbase.moviesdigger.auth.service.domain.enums.UserStatesEnum;
+import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
+import com.backbase.moviesdigger.repository.RefreshTokenJpaRepository;
+import com.backbase.moviesdigger.repository.UserJpaRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class UserPersistenceService {
+
+    private final UserJpaRepository userJpaRepository;
+    private final RefreshTokenJpaRepository refreshTokenJpaRepository;
+
+    public void saveLoggedInUserAndHisToken(String userName,
+                                            Pair<String, LoggedInUserResponse> refreshTokenToResponsePair) {
+        log.debug("Saving a logged in user {} and his refresh token to db", userName);
+        User user = new User();
+        user.setName(userName);
+        user.setState(UserStatesEnum.LOGGED_IN);
+        userJpaRepository.save(user);
+
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setTokenValue(refreshTokenToResponsePair.getKey());
+        refreshToken.setExpirationTime(refreshTokenToResponsePair.getValue().getRefreshExpiresIn());
+        refreshToken.setCreationTime(Instant.now());
+        refreshToken.setUserInformation(user);
+
+        user.setRefreshToken(refreshToken);
+
+       refreshTokenJpaRepository.save(refreshToken);
+    }
+}
