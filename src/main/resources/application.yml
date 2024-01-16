@@ -33,8 +33,10 @@ spring:
 moviesdigger:
   realm-name: moviesdigger
   public-endpoints:
-    login: client-api/v1/user/login
-    get-access-token: client-api/v1/user/token
+    h2-db: /h2
+    create: client-api/v1/users
+    login: client-api/v1/users/login
+    get-access-token: client-api/v1/users/token
 
 keycloak:
   client:

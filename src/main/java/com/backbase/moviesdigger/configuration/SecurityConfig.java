@@ -20,6 +20,12 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
   //  private final JwtAuthenticationConverter jwtAuthConverter;
+    @Value("${moviesdigger.public-endpoints.h2-db}")
+    private String publicDatabaseServer;
+
+    @Value("${moviesdigger.public-endpoints.create}")
+    private String publicUserCreate;
+
     @Value("${moviesdigger.public-endpoints.login}")
     private String publicLoginEndpoint;
 
@@ -54,6 +60,10 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers(publicLoginEndpoint, publicGetAccessTokenEndpoint);
+        return (web) -> web.ignoring().requestMatchers(
+                publicDatabaseServer,
+                publicUserCreate,
+                publicLoginEndpoint,
+                publicGetAccessTokenEndpoint);
     }
 }

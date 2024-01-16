@@ -28,5 +28,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public BearerTokenModel bearerTokenWrapper() {
         return new BearerTokenModel();
     }
-
 }

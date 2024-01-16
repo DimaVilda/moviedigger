@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.http.client.utils.HttpClientUtils;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
@@ -16,6 +16,7 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -35,16 +36,6 @@ public class KeycloakMethodsUtil {
 
     @Value("${keycloak.open-id-connect.api.token-endpoint}")
     private String tokenEndpoint;
-
-    public void assignRealmRoleForUser(Keycloak keycloak,
-                                       UsersResource usersResource,
-                                       Response response,
-                                       String userRole) {
-        String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-        RoleRepresentation role = keycloak.realm(APPLICATION_REALM).roles().get(userRole).toRepresentation();
-        UserResource userResource = usersResource.get(userId);
-        userResource.roles().realmLevel().add(Collections.singletonList(role));
-    }
 
     public LoggedInUserResponse buildLoggedInUserResponse(HttpResponse<String> response) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -70,7 +61,7 @@ public class KeycloakMethodsUtil {
     public HttpResponse<String> getUserAccessTokenByRefreshToken(String refreshToken) {
         Map<Object, Object> data = new HashMap<>();
         data.put("client_id", APPLICATION_CLIENT_ID);
-        data.put("grant_type", "refresh_token");
+        data.put("grant_type", REFRESH_TOKEN_GRANT_TYPE);
         data.put("refresh_token", refreshToken);
 
         return getToken(data);
@@ -81,7 +72,7 @@ public class KeycloakMethodsUtil {
         data.put("client_id", APPLICATION_CLIENT_ID);
         data.put("username", username);
         data.put("password", password);
-        data.put("grant_type", "password");
+        data.put("grant_type", PASSWORD_GRANT_TYPE);
 
         return getToken(data);
     }
@@ -90,7 +81,7 @@ public class KeycloakMethodsUtil {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(tokenEndpoint))
-                .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .POST(buildFormDataFromMap(data))
                 .build();
         try {
@@ -98,6 +89,26 @@ public class KeycloakMethodsUtil {
         } catch (IOException | InterruptedException e) {
             log.warn("Could not send a token request to Open ID Connect, reason is {}", e.getMessage());
             return null;
+        }
+    }
+
+    public void revokePreviousAccessToken(String previousAccessToken) {
+        Map<Object, Object> data = new HashMap<>();
+        data.put("client_id", APPLICATION_CLIENT_ID);
+        data.put("token", previousAccessToken);
+        data.put("token_type_hint", "access_token");
+
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/realms/moviesdigger/protocol/openid-connect/revoke"))
+                .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .POST(buildFormDataFromMap(data))
+                .build();
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            log.warn("Could not send a token request to Open ID Connect, reason is {}", e.getMessage());
         }
     }
 

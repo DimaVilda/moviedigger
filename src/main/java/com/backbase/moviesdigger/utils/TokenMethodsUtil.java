@@ -4,23 +4,15 @@ import com.backbase.moviesdigger.exceptions.UnauthorizedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SigningKeyResolver;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.security.PublicKey;
-import java.util.Base64;
 
 @Component
 @Slf4j
 public class TokenMethodsUtil {
 
-    public String getUserTokenClaimValue(String token, String tokenClaim) { //TODO I skip token verification by secret key to make it simply, but in real big apps we have to adjust it
+    //TODO I skip token verification by public key to make it simply, but in real big apps we have to adjust it using openid-connect/certs openid
+    public String getUserTokenClaimValue(String token, String tokenClaim) {
         try {
             String[] parts = token.split("\\.");
             String payload = new String(java.util.Base64.getUrlDecoder().decode(parts[1]));

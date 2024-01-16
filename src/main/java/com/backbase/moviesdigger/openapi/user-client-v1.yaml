@@ -4,7 +4,64 @@ info:
   title: Client API to authorize user
   description: This service is a test task for Backbase team and it's role is to serve users to interact with movies
 paths:
-  /client-api/v1/user/login:
+  /client-api/v1/users:
+    post:
+      tags:
+        - userClient
+      summary: Create a new user
+      description: Create a new user with a provided username and password
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInformationRequestBody'
+            example:
+              username: dima
+              password: password123
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              example: {}
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+  /client-api/v1/users/{userName}:
+    delete:
+      tags:
+        - userClient
+      summary: Delete a user
+      description: Delete a user by his username
+      operationId: deleteUser
+      parameters:
+        - in: path
+          name: userName
+          required: true
+          schema:
+            type: string
+          description: Username of the user to be deleted
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Dima
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+
+  /client-api/v1/users/login:
     post:
       tags:
         - userClient
@@ -13,10 +70,11 @@ paths:
       operationId: userLogin
       requestBody:
         description: Logged in user creds (userName and password)
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoggedInUserInformation'
+              $ref: '#/components/schemas/UserInformationRequestBody'
             example:
               userName: Dima
               password: dima123
@@ -34,21 +92,28 @@ paths:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
         '409':
-          description: Login request conflict for already logged in user.
+          description: Login request conflict for already logged in user
           content:
             application/json:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
-  /client-api/v1/user/login/endsession:
+        '404':
+          description: A user was not found
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+
+  /client-api/v1/users/login/endsession:
     get:
       tags:
         - userClient
       summary: End user's active session
-      description: Log out the user by revoking his tokens.
+      description: Log out the user by revoking his tokens
       operationId: endSession
       responses:
         "200":
-          description: Users session wa successfully completed.
+          description: Users session wa successfully completed
           content:
             application/json:
               example: {}
@@ -59,12 +124,12 @@ paths:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
         '409':
-          description: User's session state is still open after logging out.
+          description: User's session state is still open after logging out
           content:
             application/json:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
-  /client-api/v1/user/token:
+  /client-api/v1/users/token:
     post:
       tags:
         - userClient
@@ -73,10 +138,11 @@ paths:
       operationId: getAccessToken
       requestBody:
         description: Logged in user creds (userName and password)
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RefreshTokenRequestBody'
+              $ref: '#/components/schemas/AccessTokenRequestBody'
             example:
               refreshToken: token123
       responses:
@@ -87,7 +153,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/AccessTokenResponse"
         '401':
-          description: User is not logged in.
+          description: User is not logged in
           content:
             application/json:
               schema:
@@ -101,7 +167,7 @@ paths:
 
 components:
   schemas:
-    LoggedInUserInformation:
+    UserInformationRequestBody:
       type: object
       description: Request body to login a new user by providing its name and password
       required:
@@ -118,14 +184,18 @@ components:
           maxLength: 36
           minLength: 1
           type: string
-    RefreshTokenRequestBody:
+    AccessTokenRequestBody:
       type: object
       description: User's refresh token value
       required:
         - refreshToken
+        - previousAccessToken
       properties:
         refreshToken:
           description: Logged in user's refresh token value
+          type: string
+        previousAccessToken:
+          description: Previous access token to revoke it
           type: string
     LoggedInUserResponse:
       type: object

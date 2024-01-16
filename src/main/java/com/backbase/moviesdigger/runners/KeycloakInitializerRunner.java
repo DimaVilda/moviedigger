@@ -1,5 +1,7 @@
 package com.backbase.moviesdigger.runners;
 
+import com.backbase.moviesdigger.auth.service.iml.KeycloakService;
+import com.backbase.moviesdigger.cleanup.KeycloakCleanup;
 import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
 import jakarta.ws.rs.core.Response;
 import lombok.Getter;
@@ -23,7 +25,8 @@ import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.*;
 public class KeycloakInitializerRunner implements CommandLineRunner {
 
     private final Keycloak keycloak;
-    private final KeycloakMethodsUtil keycloakMethodsUtil;
+    private final KeycloakCleanup keycloakCleanup;
+    private final KeycloakService keycloakService;
     private String internalClientId;
 
     @Override
@@ -31,19 +34,23 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
         try {
             if (!isRealmExists(keycloak)) {
                 log.debug("Creating application realm: {}", APPLICATION_REALM);
-                createRealm(keycloak);
-                createClient(keycloak);
-
-                associateClientRoleToRealmRole(CLIENT_ADMIN_ROLE, REALM_ADMIN_ROLE);
-                associateClientRoleToRealmRole(CLIENT_USER_ROLE, REALM_USER_ROLE);
-
-                createAdminUser(keycloak);
+                defineKeycloacPreset();
             } else {
-                log.debug("Realm {} already exists in keycloak", APPLICATION_REALM);
+                log.debug("Realm {} already exists in keycloak, removing it", APPLICATION_REALM);
+                keycloakCleanup.removeRealm();
+                defineKeycloacPreset();
             }
         } catch (Exception e) {
             log.warn("Could not create application's keycloak configuration, reason is: {}", e.getMessage());
         }
+    }
+
+    private void defineKeycloacPreset() {
+        createRealm(keycloak);
+        createClient(keycloak);
+        associateClientRoleToRealmRole(CLIENT_ADMIN_ROLE, REALM_ADMIN_ROLE);
+        associateClientRoleToRealmRole(CLIENT_USER_ROLE, REALM_USER_ROLE);
+        createAdminUser(keycloak);
     }
 
     private boolean isRealmExists(Keycloak keycloak) {
@@ -152,7 +159,7 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
         Response response = keycloak.realm(APPLICATION_REALM).users().create(adminUser);
 
         if (response.getStatus() == 201) {
-            keycloakMethodsUtil.assignRealmRoleForUser(keycloak,
+            keycloakService.assignRealmRoleForUser(keycloak,
                     keycloak.realm(APPLICATION_REALM).users(),
                     response,
                     REALM_ADMIN_ROLE);

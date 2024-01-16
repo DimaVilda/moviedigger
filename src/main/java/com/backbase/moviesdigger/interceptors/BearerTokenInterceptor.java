@@ -14,6 +14,7 @@ public class BearerTokenInterceptor implements HandlerInterceptor {
     private final BearerTokenModel tokenWrapper;
     private static final String BEARER_PREFIX = "Bearer ";
 
+    //TODO in best case scenation a token should not be in DTO but in spring security context but it takes more time
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         final String authorizationHeaderValue = request.getHeader("Authorization");

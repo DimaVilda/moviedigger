@@ -1,6 +1,5 @@
 package com.backbase.moviesdigger.auth.service.domain;
 
-import com.backbase.moviesdigger.auth.service.domain.enums.UserStatesEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -24,12 +23,4 @@ public class User {
     @EqualsAndHashCode.Include
     @Column(name = "name")
     private String name;
-
-    @Enumerated(EnumType.STRING)
-    @EqualsAndHashCode.Include
-    @Column(name = "state", nullable = false, length = 36)
-    private UserStatesEnum state;
-
-    @OneToOne(mappedBy = "userInformation", cascade = CascadeType.ALL)
-    private RefreshToken refreshToken;
 }

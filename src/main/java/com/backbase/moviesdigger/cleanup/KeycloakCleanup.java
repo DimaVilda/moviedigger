@@ -22,10 +22,10 @@ public class KeycloakCleanup implements DisposableBean {
         removeRealm();
     }
 
-    private void removeRealm() {
+    public void removeRealm() {
         try {
             keycloak.realm(APPLICATION_REALM).remove();
-            log.debug("Realm removed successfully.");
+            log.debug("Realm removed successfully!");
         } catch (Exception e) {
             log.warn("Error removing realm, reason is {}", e.getMessage());
         }
