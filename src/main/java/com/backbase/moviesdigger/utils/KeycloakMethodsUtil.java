@@ -9,9 +9,12 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,10 +25,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.*;
 
@@ -46,7 +46,7 @@ public class KeycloakMethodsUtil {
         userResource.roles().realmLevel().add(Collections.singletonList(role));
     }
 
-    public Pair<String, LoggedInUserResponse> buildLoggedInUserResponse(HttpResponse<String> response) {
+    public LoggedInUserResponse buildLoggedInUserResponse(HttpResponse<String> response) {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode;
         try {
@@ -60,16 +60,14 @@ public class KeycloakMethodsUtil {
         int refreshExpiresIn = rootNode.path("refresh_expires_in").asInt();
         String refreshToken = rootNode.path("refresh_token").asText();
 
-        return Pair.of(
-                refreshToken,
-                new LoggedInUserResponse()
+        return new LoggedInUserResponse()
                         .accessToken(accessToken)
                         .expiresIn(expiresIn)
-                        .refreshExpiresIn(refreshExpiresIn)
-        );
+                        .refreshToken(refreshToken)
+                        .refreshExpiresIn(refreshExpiresIn);
     }
 
-    public HttpResponse<String> getUserTokenByRefreshToken(String refreshToken) {
+    public HttpResponse<String> getUserAccessTokenByRefreshToken(String refreshToken) {
         Map<Object, Object> data = new HashMap<>();
         data.put("client_id", APPLICATION_CLIENT_ID);
         data.put("grant_type", "refresh_token");
@@ -101,6 +99,24 @@ public class KeycloakMethodsUtil {
             log.warn("Could not send a token request to Open ID Connect, reason is {}", e.getMessage());
             return null;
         }
+    }
+
+    public boolean isUserLoggedIn(RealmResource applicationRealm, UsersResource usersResource, String userName) {
+        UserRepresentation user = usersResource.search(userName).get(0);
+        List<UserSessionRepresentation> userCurrentSessions = usersResource.get(user.getId()).getUserSessions();
+        if (userCurrentSessions.size() > 1) {
+            limitUserSessionsToTheFirstOne(applicationRealm, userCurrentSessions);
+            return true;
+        }
+        return !usersResource.get(user.getId()).getUserSessions().isEmpty();// if user has sessions, user still logged in
+    }
+
+    private void limitUserSessionsToTheFirstOne(RealmResource applicationRealm,
+                                                List<UserSessionRepresentation> userCurrentSessions) {
+
+        log.debug("User sessions more than one, deleting a new one");
+        userCurrentSessions.sort(Comparator.comparing(UserSessionRepresentation::getStart));
+        applicationRealm.deleteSession(userCurrentSessions.get(1).getId());
     }
 
     private HttpRequest.BodyPublisher buildFormDataFromMap(Map<Object, Object> data) {

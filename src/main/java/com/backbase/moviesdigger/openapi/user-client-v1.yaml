@@ -39,47 +39,53 @@ paths:
             application/json:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
-  /client-api/v1/user/logout:
-    patch:
+  /client-api/v1/user/login/endsession:
+    get:
       tags:
         - userClient
-      summary: Logout user
+      summary: End user's active session
       description: Log out the user by revoking his tokens.
-      operationId: userLogout
+      operationId: endSession
       responses:
-        '200':
-          description: User successfully logged out.
+        "200":
+          description: Users session wa successfully completed.
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/LoggedOutUserResponse"
+              example: {}
         '401':
           description: Unauthorized or invalid token.
           content:
             application/json:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
-  /client-api/v1/user/{user-mame}/token:
-    get:
-      tags:
-        - userClient
-      summary: Retrieve user access token
-      description: Retrieve a new access token from keycloak when the old one is expired
-      operationId: getAccessToken
-      parameters:
-        - name: user-mame
-          description: Logged in user name cred.
-          schema:
-            type: string
-          in: path
-          required: true
-      responses:
-        '200':
-          description: New access token successfully retrieved
+        '409':
+          description: User's session state is still open after logging out.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LoggedInUserResponse"
+                $ref: 'common.yaml#/components/schemas/Error'
+  /client-api/v1/user/token:
+    post:
+      tags:
+        - userClient
+      summary: Retrieve user access token
+      description: Retrieve a new access token from keycloak when the old one is expired by refresh token
+      operationId: getAccessToken
+      requestBody:
+        description: Logged in user creds (userName and password)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequestBody'
+            example:
+              refreshToken: token123
+      responses:
+        '200':
+          description: New access token successfully retrieved from keycloak
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessTokenResponse"
         '401':
           description: User is not logged in.
           content:
@@ -112,12 +118,22 @@ components:
           maxLength: 36
           minLength: 1
           type: string
+    RefreshTokenRequestBody:
+      type: object
+      description: User's refresh token value
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          description: Logged in user's refresh token value
+          type: string
     LoggedInUserResponse:
       type: object
       description: Logged in user successful response with access-token, its expiration and refresh token expiration dates from keycloak
       required:
         - accessToken
         - expiresIn
+        - refreshToken
         - refreshExpiresIn
       properties:
         accessToken:
@@ -125,7 +141,21 @@ components:
         expiresIn:
           type: integer
           format: int32
+        refreshToken:
+          type: string
         refreshExpiresIn:
+          type: integer
+          format: int32
+    AccessTokenResponse:
+      type: object
+      description: Logged in user's new access token and expiration in seconds provided by keycloak by refresh token
+      required:
+        - accessToken
+        - expiresIn
+      properties:
+        accessToken:
+          type: string
+        expiresIn:
           type: integer
           format: int32
     LoggedOutUserResponse:

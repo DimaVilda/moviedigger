@@ -1,17 +1,16 @@
 package com.backbase.moviesdigger.auth.service.iml;
 
 import com.backbase.moviesdigger.auth.service.UserAuthService;
+import com.backbase.moviesdigger.client.spec.model.AccessTokenResponse;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserInformation;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
-import com.backbase.moviesdigger.client.spec.model.LoggedOutUserResponse;
 import com.backbase.moviesdigger.exceptions.ConflictException;
-import com.backbase.moviesdigger.exceptions.NotFoundException;
 import com.backbase.moviesdigger.exceptions.UnauthorizedException;
 import com.backbase.moviesdigger.models.BearerTokenModel;
 import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
+import com.backbase.moviesdigger.utils.TokenMethodsUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -21,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.http.HttpResponse;
 import java.util.*;
 
+import static com.backbase.moviesdigger.utils.consts.JwtClaimsConst.PREFERRED_USERNAME_CLAIM;
 import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.*;
 
 @Service
@@ -29,11 +29,10 @@ import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.*;
 public class UserAuthServiceImpl implements UserAuthService {
 
     private final Keycloak keycloak;
-    private final TokenService tokenService;
     private final KeycloakService keycloakService;
     private final UserPersistenceService userPersistenceService;
     private final KeycloakMethodsUtil keycloakMethodsUtil;
-
+    private final TokenMethodsUtil tokenMethodsUtil;
     private final BearerTokenModel tokenWrapper;
 
     @Override
@@ -46,57 +45,43 @@ public class UserAuthServiceImpl implements UserAuthService {
         if (!isUserAlreadyExists(usersResource, userName)) { //if user does not exist
             return registerAndProcessNewUser(usersResource, userName, userPassword);
         }
-        if (keycloakMethodsUtil.getUserTokensByUsernameAndPassword(userName, userPassword).statusCode() != 200) { //if token by user creds
-            throw new UnauthorizedException("A user with username " +
-                    userName + ", already exists, try another username");
-        }
-        if (userPersistenceService.isLoggedInByUserName(userName)) { // if this userName already exists in keycloak
+        if (keycloakMethodsUtil.isUserLoggedIn(keycloak.realm(APPLICATION_REALM), usersResource, userName)) { //check if user has sessions and limit them
             throw new ConflictException("A user " + userName + " is already logged in! ");
         }
-        return processExistingUserLogin(userName, userPassword); //if user exists but his status is logged out
+        return processExistingLoggedOutUserLogin(userName, userPassword); //if user exists but his status is logged out
     }
 
     @Override
-    public LoggedOutUserResponse logout() {
-
-        tokenWrapper.getToken();
-       // keycloakMethodsUtil.logoutUser()
-       // keycloakMethodsUtil
-        return null;
-    }
-
-    @Override
-    public LoggedInUserResponse getAccessToken(String userName) {
+    public void endSession() {
+        String usernameFromClaim = tokenMethodsUtil.getUserTokenClaimValue(tokenWrapper.getToken(), PREFERRED_USERNAME_CLAIM);
         UsersResource usersResource = keycloak.realm(APPLICATION_REALM).users();
-
-        if (!isUserAlreadyExists(usersResource, userName)) {
-            throw new NotFoundException("A user with userName " + userName + " doesn't exist!");
-        }
-
-        String loggedInUserRefreshToken = userPersistenceService.findRefreshTokenByUserNameIfLoggedIn(userName);
-        if (loggedInUserRefreshToken.isEmpty()) {
-            throw new UnauthorizedException("A user " + userName + " is not authorized! Please, log in!");
-        }
-        HttpResponse<String> tokensResponse =
-                keycloakMethodsUtil.getUserTokenByRefreshToken(loggedInUserRefreshToken);
-        validateTokensResponse(tokensResponse, userName);
-
-        Pair<String, LoggedInUserResponse> refreshTokenToResponsePair =
-                keycloakMethodsUtil.buildLoggedInUserResponse(tokensResponse);
-        tokenService.handleRefreshTokenExpiration(userName, refreshTokenToResponsePair);
-        return refreshTokenToResponsePair.getValue();
+        keycloakService.endUserSession(keycloak.realm(APPLICATION_REALM), usersResource, usernameFromClaim);
     }
 
-    private LoggedInUserResponse processExistingUserLogin(String userName, String userPassword) {
+    @Override
+    public AccessTokenResponse getAccessToken(String refreshToken) { //TODO mb check if current access token is active and if so - dont generate a new one
+        HttpResponse<String> tokensResponse =
+                keycloakMethodsUtil.getUserAccessTokenByRefreshToken(refreshToken); //is response not 200 - user have to log in
+        if (tokensResponse.statusCode() != 200) { //in case a refresh token was expired as well
+            throw new UnauthorizedException("A user is not authorized! Please, log in!");
+        }
+        LoggedInUserResponse refreshTokenToResponse =
+                keycloakMethodsUtil.buildLoggedInUserResponse(tokensResponse);
+        return new AccessTokenResponse()
+                .accessToken(refreshTokenToResponse.getAccessToken())
+                .expiresIn(refreshTokenToResponse.getExpiresIn());
+    }
+
+    private LoggedInUserResponse processExistingLoggedOutUserLogin(String userName, String userPassword) {
         HttpResponse<String> tokensResponse =
                 keycloakMethodsUtil.getUserTokensByUsernameAndPassword(userName, userPassword);
         validateTokensResponse(tokensResponse, userName);
 
-        Pair<String, LoggedInUserResponse> refreshTokenToResponsePair =
+        LoggedInUserResponse refreshTokenToResponsePair =
                 keycloakMethodsUtil.buildLoggedInUserResponse(tokensResponse);
-        tokenService.handleRefreshTokenExpiration(userName, refreshTokenToResponsePair);
+        //tokenService.handleRefreshTokenExpiration(userName, refreshTokenToResponsePair);
         userPersistenceService.updateUserStatusToLoggedIn(userName);
-        return refreshTokenToResponsePair.getValue();
+        return refreshTokenToResponsePair;
     }
 
     private LoggedInUserResponse registerAndProcessNewUser(UsersResource usersResource, String userName, String userPassword) {
@@ -105,10 +90,10 @@ public class UserAuthServiceImpl implements UserAuthService {
                 keycloakMethodsUtil.getUserTokensByUsernameAndPassword(userName, userPassword);
         validateTokensResponse(tokensResponse, userName);
 
-        Pair<String, LoggedInUserResponse> refreshTokenToResponsePair =
+        LoggedInUserResponse refreshTokenToResponse =
                 keycloakMethodsUtil.buildLoggedInUserResponse(tokensResponse);
-        userPersistenceService.saveLoggedInUserAndHisToken(userName, refreshTokenToResponsePair);
-        return refreshTokenToResponsePair.getValue();
+        userPersistenceService.saveLoggedInUserAndHisToken(userName, refreshTokenToResponse);
+        return refreshTokenToResponse;
     }
 
     private void validateTokensResponse(HttpResponse<String> tokensResponse, String userName) {

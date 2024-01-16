@@ -1,5 +1,6 @@
 package com.backbase.moviesdigger.auth.service;
 
+import com.backbase.moviesdigger.client.spec.model.AccessTokenResponse;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserInformation;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
 import com.backbase.moviesdigger.client.spec.model.LoggedOutUserResponse;
@@ -19,18 +20,17 @@ public interface UserAuthService {
     LoggedInUserResponse login(LoggedInUserInformation loggedInUserInformation);
 
     /**
-     * Logout user
+     * End user's session by username from its access token claim
      *
-     * @return - {@link LoggedOutUserResponse} - user's name cred and his state after successful logout
      */
-    LoggedOutUserResponse logout();
+    void endSession();
 
     /**
      * Get logged-in user's access token
      *
-     * @param userMame - logged-in user's name cred
+     * @param refreshToken - user's refresh token value
      *
-     * @return - {@link LoggedInUserResponse} - access token, its expiration date, refresh token's expiration date
+     * @return - {@link AccessTokenResponse} - access token and its expiration date in seconds from keycloak
      */
-    LoggedInUserResponse getAccessToken(String userMame);
+    AccessTokenResponse getAccessToken(String refreshToken);
 }

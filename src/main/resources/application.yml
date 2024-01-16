@@ -34,7 +34,7 @@ moviesdigger:
   realm-name: moviesdigger
   public-endpoints:
     login: client-api/v1/user/login
-    get-access-token: client-api/v1/user/{user-mame}/token
+    get-access-token: client-api/v1/user/token
 
 keycloak:
   client:

@@ -22,7 +22,7 @@ public class UserPersistenceService {
     private final RefreshTokenJpaRepository refreshTokenJpaRepository;
 
     public void saveLoggedInUserAndHisToken(String userName,
-                                            Pair<String, LoggedInUserResponse> refreshTokenToResponsePair) {
+                                            LoggedInUserResponse refreshTokenToResponse) {
         log.debug("Saving a logged in user {} and his refresh token to db", userName);
         User user = new User();
         user.setName(userName);
@@ -30,8 +30,8 @@ public class UserPersistenceService {
         userJpaRepository.save(user);
 
         RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setTokenValue(refreshTokenToResponsePair.getKey());
-        refreshToken.setExpirationTime(refreshTokenToResponsePair.getValue().getRefreshExpiresIn());
+        refreshToken.setTokenValue(refreshTokenToResponse.getRefreshToken());
+        refreshToken.setExpirationTime(refreshTokenToResponse.getRefreshExpiresIn());
         refreshToken.setCreationTime(Instant.now());
         refreshToken.setUserInformation(user);
 
