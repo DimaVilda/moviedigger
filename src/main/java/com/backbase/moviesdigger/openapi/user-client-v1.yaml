@@ -40,8 +40,8 @@ paths:
       description: Delete a user by his username
       operationId: deleteUser
       parameters:
-        - in: path
-          name: userName
+        - name: userName
+          in: path
           required: true
           schema:
             type: string

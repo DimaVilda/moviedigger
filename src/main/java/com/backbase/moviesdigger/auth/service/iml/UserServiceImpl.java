@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         UsersResource usersResource = keycloak.realm(APPLICATION_REALM).users();
 
         if (!userPersistenceService.isUserCreated(userName)) { //check if a such user was created
-            throw new NotFoundException("A user " + userName + " was not created. Create user before login.");
+            throw new UnauthorizedException("Incorrect username or password");
         }
         if (!isUserExists(usersResource, userName)) { //if user does not exist in keycloak
             throw new NotFoundException("A user " + userName + " was not found in keycloak. " +
@@ -88,13 +88,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AccessTokenResponse getAccessToken(String refreshToken, String previousAccessToken) {
-        keycloakMethodsUtil.revokePreviousAccessToken(previousAccessToken); // revoke prev access token to prevent multiple access tokens for one user
-
         HttpResponse<String> tokensResponse =
                 keycloakMethodsUtil.getUserAccessTokenByRefreshToken(refreshToken); //is response not 200 - user have to log in
         if (tokensResponse.statusCode() != 200) { //in case a refresh token was expired as well
             throw new UnauthorizedException("A user is not authorized! Please, log in.");
         }
+        keycloakMethodsUtil.revokePreviousAccessToken(previousAccessToken); // revoke prev access token to prevent multiple access tokens for one user
+
         LoggedInUserResponse refreshTokenToResponse =
                 keycloakMethodsUtil.buildLoggedInUserResponse(tokensResponse);
         return new AccessTokenResponse()

@@ -1,7 +1,6 @@
 package com.backbase.moviesdigger.auth.service.iml;
 
 import com.backbase.moviesdigger.auth.service.domain.User;
-import com.backbase.moviesdigger.client.spec.model.UserInformationRequestBody;
 import com.backbase.moviesdigger.exceptions.ConflictException;
 import com.backbase.moviesdigger.exceptions.NotFoundException;
 import com.backbase.moviesdigger.repository.UserJpaRepository;
@@ -49,5 +48,4 @@ public class UserPersistenceService {
         userJpaRepository.delete(user);
         return userName;
     }
-
 }

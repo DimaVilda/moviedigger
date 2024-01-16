@@ -87,7 +87,6 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
 
         ClientsResource clientsResource = keycloak.realm(APPLICATION_REALM).clients();
         Response response = clientsResource.create(client);
-
         if (response.getStatus() == 201) {
             createClientRoles();
         } else {

@@ -28,10 +28,10 @@ public class UserController implements UserClientApi {
     }
 
     @Override
-    public ResponseEntity<String> deleteUser(@PathVariable String username) {
-        log.debug("Trying to delete a user {} ", username);
+    public ResponseEntity<String> deleteUser(@PathVariable String userName) {
+        log.debug("Trying to delete a user {} ", userName);
 
-        return new ResponseEntity<>(userService.deleteUser(username), HttpStatus.OK);
+        return new ResponseEntity<>(userService.deleteUser(userName), HttpStatus.OK);
     }
     @Override
     public ResponseEntity<AccessTokenResponse> getAccessToken(@RequestBody AccessTokenRequestBody refreshTokenRequestBody) {
