@@ -20,7 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
   //  private final JwtAuthenticationConverter jwtAuthConverter;
-    @Value("${moviesdigger.public-endpoints.h2-db}")
+    @Value("${moviesdigger.public-endpoints.database}")
     private String publicDatabaseServer;
 
     @Value("${moviesdigger.public-endpoints.create}")
