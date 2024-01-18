@@ -1,4 +1,4 @@
-package com.backbase.moviesdigger.models;
+package com.backbase.moviesdigger.dtos;
 
 import lombok.Getter;
 import lombok.Setter;

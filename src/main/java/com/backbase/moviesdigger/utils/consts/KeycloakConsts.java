@@ -12,6 +12,8 @@ public class KeycloakConsts {
     public static final String CLIENT_USER_ROLE = "client_user";
     public static final String ADMIN_USER_NAME = "admin";
 
+    public static final String ADMIN_USER_PASSWORD = "admin";
+
     public static final String PASSWORD_GRANT_TYPE = "password";
 
     public static final String REFRESH_TOKEN_GRANT_TYPE = "refresh_token";

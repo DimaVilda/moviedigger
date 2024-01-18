@@ -98,7 +98,6 @@ public class KeycloakMethodsUtil {
         data.put("token", previousAccessToken);
         data.put("token_type_hint", "access_token");
 
-
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/realms/moviesdigger/protocol/openid-connect/revoke"))

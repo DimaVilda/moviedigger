@@ -1,7 +1,7 @@
 package com.backbase.moviesdigger.configuration;
 
 import com.backbase.moviesdigger.interceptors.BearerTokenInterceptor;
-import com.backbase.moviesdigger.models.BearerTokenModel;
+import com.backbase.moviesdigger.dtos.BearerTokenModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;

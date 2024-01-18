@@ -32,6 +32,7 @@ paths:
             application/json:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
+
   /client-api/v1/users/{userName}:
     delete:
       tags:
@@ -41,11 +42,11 @@ paths:
       operationId: deleteUser
       parameters:
         - name: userName
+          description: Username of the user to be deleted
           in: path
           required: true
           schema:
             type: string
-          description: Username of the user to be deleted
       responses:
         '200':
           description: User deleted successfully
@@ -65,8 +66,8 @@ paths:
     post:
       tags:
         - userClient
-      summary: Start a game
-      description: Log in a user using creds (userName and password) in application and allow accessing to use application APIs
+      summary: Login created user
+      description: Log in a user using creds (userName and password) in application and give an access to use application APIs
       operationId: userLogin
       requestBody:
         description: Logged in user creds (userName and password)
@@ -169,33 +170,33 @@ components:
   schemas:
     UserInformationRequestBody:
       type: object
-      description: Request body to login a new user by providing its name and password
+      description: User information that represents by providing user name and password creds
       required:
         - userName
         - password
       properties:
         userName:
-          description: Logged in user name
+          description: User's userName cred
           maxLength: 36
           minLength: 1
           type: string
         password:
-          description: Logged in user password
+          description: User's password cred
           maxLength: 36
           minLength: 1
           type: string
     AccessTokenRequestBody:
       type: object
-      description: User's refresh token value
+      description: User's refresh token value and previous access token
       required:
         - refreshToken
         - previousAccessToken
       properties:
         refreshToken:
-          description: Logged in user's refresh token value
+          description: User's refresh token value
           type: string
         previousAccessToken:
-          description: Previous access token to revoke it
+          description: User's previous access token value to revoke it
           type: string
     LoggedInUserResponse:
       type: object
@@ -207,13 +208,17 @@ components:
         - refreshExpiresIn
       properties:
         accessToken:
+          description: Logged in user's access token value
           type: string
         expiresIn:
+          description: Logged in user's access token expiration in seconds
           type: integer
           format: int32
         refreshToken:
+          description: Logged in user's refresh token value
           type: string
         refreshExpiresIn:
+          description: Logged in user's refresh token expiration in seconds
           type: integer
           format: int32
     AccessTokenResponse:
@@ -224,26 +229,16 @@ components:
         - expiresIn
       properties:
         accessToken:
+          description: Obtained access token value
           type: string
         expiresIn:
+          description: Obtained new access token's expiration in seconds
           type: integer
           format: int32
     LoggedOutUserResponse:
       type: object
-      description: Logged out user response with user name and user state
+      description: Logged out user response body
       properties:
         userName:
+          description: Logged out user name
           type: string
-          example: Dima
-        userStatus:
-          $ref: '#/components/schemas/UserLoginStatesEnum'
-      required:
-        - userName
-        - userState
-    UserLoginStatesEnum:
-      type: string
-      description: Current user login states
-      default: LOGGED_OUT
-      enum:
-        - LOGGED_OUT
-        - LOGGED_IN

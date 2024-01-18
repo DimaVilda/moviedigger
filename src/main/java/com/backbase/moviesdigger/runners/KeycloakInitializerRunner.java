@@ -1,6 +1,7 @@
 package com.backbase.moviesdigger.runners;
 
 import com.backbase.moviesdigger.auth.service.iml.KeycloakService;
+import com.backbase.moviesdigger.auth.service.iml.UserPersistenceService;
 import com.backbase.moviesdigger.cleanup.KeycloakCleanup;
 import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
 import jakarta.ws.rs.core.Response;
@@ -20,19 +21,20 @@ import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.*;
 
 @Component
 @RequiredArgsConstructor
-@Getter
 @Slf4j
 public class KeycloakInitializerRunner implements CommandLineRunner {
 
     private final Keycloak keycloak;
     private final KeycloakCleanup keycloakCleanup;
     private final KeycloakService keycloakService;
+    private final UserPersistenceService userPersistenceService;
+    private final KeycloakMethodsUtil keycloakMethodsUtil;
     private String internalClientId;
 
     @Override
     public void run(String... args) {
         try {
-            if (!isRealmExists(keycloak)) {
+            if (!isRealmExists()) {
                 log.debug("Creating application realm: {}", APPLICATION_REALM);
                 defineKeycloacPreset();
             } else {
@@ -46,18 +48,19 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
     }
 
     private void defineKeycloacPreset() {
-        createRealm(keycloak);
-        createClient(keycloak);
+        createRealm();
+        createClient();
         associateClientRoleToRealmRole(CLIENT_ADMIN_ROLE, REALM_ADMIN_ROLE);
         associateClientRoleToRealmRole(CLIENT_USER_ROLE, REALM_USER_ROLE);
-        createAdminUser(keycloak);
+        createAdminUser();
+        // loginAdminUser();
     }
 
-    private boolean isRealmExists(Keycloak keycloak) {
+    private boolean isRealmExists() {
         return keycloak.realms().findAll().stream().anyMatch(realm -> APPLICATION_REALM.equals(realm.getRealm()));
     }
 
-    private void createRealm(Keycloak keycloak) {
+    private void createRealm() {
         RoleRepresentation userRole = new RoleRepresentation();
         userRole.setName(REALM_USER_ROLE);
 
@@ -77,7 +80,7 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
         keycloak.realms().create(rr);
     }
 
-    private void createClient(Keycloak keycloak) {
+    private void createClient() {
         ClientRepresentation client = new ClientRepresentation();
         client.setClientId(APPLICATION_CLIENT_ID); // Set your client ID
         client.setName(APPLICATION_CLIENT); // Set a name for your client
@@ -145,8 +148,14 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
         return keycloak.realm(APPLICATION_REALM).roles().get(realmRoleName).toRepresentation();
     }
 
-    private void createAdminUser(Keycloak keycloak) {
-        UserRepresentation adminUser = new UserRepresentation();
+    private void createAdminUser() {
+        keycloakService.createUserInKeycloak(
+                keycloak,
+                keycloak.realm(APPLICATION_REALM).users(),
+                ADMIN_USER_NAME,
+                ADMIN_USER_PASSWORD);
+        userPersistenceService.saveUser(ADMIN_USER_NAME);
+/*        UserRepresentation adminUser = new UserRepresentation();
         adminUser.setUsername(ADMIN_USER_NAME);
         adminUser.setEnabled(true);
 
@@ -162,6 +171,10 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
                     keycloak.realm(APPLICATION_REALM).users(),
                     response,
                     REALM_ADMIN_ROLE);
-        }
+        }*/
+    }
+
+    private void loginAdminUser() {
+        keycloakMethodsUtil.getUserTokensByUsernameAndPassword(ADMIN_USER_NAME, ADMIN_USER_PASSWORD);
     }
 }

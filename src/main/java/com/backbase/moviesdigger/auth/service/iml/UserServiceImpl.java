@@ -7,9 +7,11 @@ import com.backbase.moviesdigger.client.spec.model.UserInformationRequestBody;
 import com.backbase.moviesdigger.exceptions.ConflictException;
 import com.backbase.moviesdigger.exceptions.NotFoundException;
 import com.backbase.moviesdigger.exceptions.UnauthorizedException;
-import com.backbase.moviesdigger.models.BearerTokenModel;
+import com.backbase.moviesdigger.dtos.BearerTokenModel;
 import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
 import com.backbase.moviesdigger.utils.TokenMethodsUtil;
+import com.backbase.moviesdigger.utils.validation.validators.AllowedCreds;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
@@ -47,7 +49,9 @@ public class UserServiceImpl implements UserService {
         if (isUserExists(usersResource, userName)) {
             throw new ConflictException("A user " + userName + " is already exist.");
         }
-        keycloakService.createUserInKeycloak(keycloak, usersResource, userName, userPassword);
+        Response responseFromKeycloak =
+                keycloakService.createUserInKeycloak(keycloak, usersResource, userName, userPassword);
+        keycloakService.assignRealmRoleForUser(keycloak, usersResource, responseFromKeycloak, REALM_USER_ROLE);
     }
 
     @Override

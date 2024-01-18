@@ -3,11 +3,12 @@ package com.backbase.moviesdigger.clientapi.controller;
 import com.backbase.moviesdigger.auth.service.UserService;
 import com.backbase.moviesdigger.client.spec.api.UserClientApi;
 import com.backbase.moviesdigger.client.spec.model.*;
-import com.backbase.moviesdigger.client.spec.model.Error;
+import com.backbase.moviesdigger.utils.validation.sequences.UserCredsSequence;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,14 +21,16 @@ public class UserController implements UserClientApi {
     private final UserService userService;
 
     @Override
-    public ResponseEntity<Void> createUser(@RequestBody UserInformationRequestBody userInformationRequestBody) {
+    public ResponseEntity<Void> createUser(@RequestBody
+                                               //@Validated(UserCredsSequence.class)
+                                               UserInformationRequestBody userInformationRequestBody) {
         log.debug("Trying to create a new user {} ", userInformationRequestBody.getUserName());
 
         userService.createUser(userInformationRequestBody);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @Override
+    @Override //TODO add has role admin role
     public ResponseEntity<String> deleteUser(@PathVariable String userName) {
         log.debug("Trying to delete a user {} ", userName);
 
@@ -43,7 +46,9 @@ public class UserController implements UserClientApi {
     }
 
     @Override
-    public ResponseEntity<LoggedInUserResponse> userLogin(@RequestBody UserInformationRequestBody userInformationRequestBody) {
+    public ResponseEntity<LoggedInUserResponse> userLogin(@RequestBody
+                                                              @Validated(UserCredsSequence.class)
+                                                              UserInformationRequestBody userInformationRequestBody) {
         log.debug("Trying to log in a user {}", userInformationRequestBody.getUserName());
 
         return new ResponseEntity<>(userService.login(userInformationRequestBody), HttpStatus.CREATED);

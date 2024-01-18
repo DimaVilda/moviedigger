@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 
 import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.APPLICATION_REALM;
-import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.REALM_USER_ROLE;
 
 @Service
 @Slf4j
@@ -27,7 +26,7 @@ public class KeycloakService {
 
     private final KeycloakMethodsUtil keycloakMethodsUtil;
 
-    public void createUserInKeycloak(Keycloak keycloak, UsersResource usersResource, String userName, String userPassword) {
+    public Response createUserInKeycloak(Keycloak keycloak, UsersResource usersResource, String userName, String userPassword) {
         log.debug("Trying to create new user {} in keycloak", userName);
 
         UserRepresentation userRepresentation = new UserRepresentation();
@@ -45,7 +44,8 @@ public class KeycloakService {
             throw new UnauthorizedException("Failed authorization for user " +
                     userName + ", try again or speak with admin");
         }
-        assignRealmRoleForUser(keycloak, usersResource, response, REALM_USER_ROLE);
+        return response;
+       // assignRealmRoleForUser(keycloak, usersResource, response, REALM_USER_ROLE);
     }
 
     public void deleteUserFromKeycloak(UsersResource usersResource, String userName) {

@@ -1,6 +1,6 @@
 package com.backbase.moviesdigger.interceptors;
 
-import com.backbase.moviesdigger.models.BearerTokenModel;
+import com.backbase.moviesdigger.dtos.BearerTokenModel;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
