@@ -1,9 +1,10 @@
 package com.backbase.moviesdigger.clientapi.controller;
 
+import com.backbase.moviesdigger.service.MoviesDiggerService;
 import com.backbase.moviesdigger.client.spec.api.MovieDiggerClientApi;
+import com.backbase.moviesdigger.client.spec.model.MovieRatingRequestBody;
 import com.backbase.moviesdigger.client.spec.model.MovieRatingResponseBody;
 import com.backbase.moviesdigger.client.spec.model.MovieWinnerResponseBodyItem;
-import com.backbase.moviesdigger.client.spec.model.ProvideMovieRatingRequest;
 import com.backbase.moviesdigger.client.spec.model.TopRatedMovieResponseBodyItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,8 @@ import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.REALM_USER_R
 @RequiredArgsConstructor
 @Slf4j
 public class MoviesDiggerController implements MovieDiggerClientApi {
+
+    private final MoviesDiggerService moviesDiggerService;
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
@@ -44,13 +47,19 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<MovieRatingResponseBody> provideMovieRating(String movieName, ProvideMovieRatingRequest provideMovieRatingRequest) {
-        return null;
+    public ResponseEntity<MovieRatingResponseBody> provideMovieRating(String movieName, MovieRatingRequestBody movieRatingRequestBody) {
+        log.debug("Trying to provide a rating {} to movie {}", movieRatingRequestBody.getRating(), movieName);
+
+        return new ResponseEntity<>(moviesDiggerService.provideMovieRating(movieName, movieRatingRequestBody), HttpStatus.CREATED);
     }
 
     @Override
     @PreAuthorize("hasRole('" + REALM_ADMIN_ROLE + "')")
     public ResponseEntity<Void> deleteMovieRating(UUID ratingId) {
-        return null;
+        log.debug("Trying to delete movie's rating by id {} ", ratingId);
+
+        moviesDiggerService.deleteMovieRating(ratingId.toString());
+        return new ResponseEntity<>(HttpStatus.OK);
+        //return ResponseEntity.ok().build(); ???
     }
 }

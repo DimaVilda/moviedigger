@@ -67,7 +67,7 @@ paths:
               - DESC
       responses:
         '200':
-          description: A list of top-rated movies
+          description: Top rated movies response list ordered in asc or desc direction by office box value
           content:
             application/json:
               schema:
@@ -99,7 +99,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Retrieved movie rating
+          description: Retrieved rating value of certain movie ad movie name
           content:
             application/json:
               schema:
@@ -130,21 +130,15 @@ paths:
           schema:
             type: string
       requestBody:
+        description: Rating value for a certain movie
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - rating
-              properties:
-                rating:
-                  type: integer
-                  format: int32
-                  description: The new rating for the movie
+              $ref: "#/components/schemas/MovieRatingRequestBody"
       responses:
         '200':
-          description: Movie rating provided successfully
+          description: A rating for certain movie provided successfully
           content:
             application/json:
               schema:
@@ -215,7 +209,6 @@ components:
   schemas:
     GetMovieWinnersResponseList:
       type: array
-      description: Best Picture Oscar rated movies response body list
       items:
         $ref: '#/components/schemas/MovieWinnerResponseBodyItem'
     MovieWinnerResponseBodyItem:
@@ -227,10 +220,10 @@ components:
         id:
           $ref: 'common.yaml#/components/schemas/Uuid'
         name:
+          description: Best picture movie name
           type: string
     GetTopRatedMoviesResponseBody:
       type: array
-      description: Top rated movies response ordered in asc or desc direction by office box value
       items:
         $ref: '#/components/schemas/TopRatedMovieResponseBodyItem'
     TopRatedMovieResponseBodyItem:
@@ -248,11 +241,11 @@ components:
           type: integer
           format: int32
         boxOffice:
+          description: Movie's box office value
           type: number
           format: float
     MovieRatingResponseBody:
       type: object
-      description: Rating value of certain movie ad movie name
       required:
         - name
         - rating
@@ -264,5 +257,15 @@ components:
           description: Rated movie rating
           type: integer
           format: int32
+    MovieRatingRequestBody:
+      type: object
+      required:
+        - rating
+      properties:
+        rating:
+          description: The new rating for the movie
+          type: integer
+          format: int32
+
 
 

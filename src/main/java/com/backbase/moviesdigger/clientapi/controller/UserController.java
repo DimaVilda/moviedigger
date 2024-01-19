@@ -1,6 +1,6 @@
 package com.backbase.moviesdigger.clientapi.controller;
 
-import com.backbase.moviesdigger.auth.service.UserService;
+import com.backbase.moviesdigger.service.UserService;
 import com.backbase.moviesdigger.client.spec.api.UserClientApi;
 import com.backbase.moviesdigger.client.spec.model.*;
 import com.backbase.moviesdigger.utils.validation.sequences.UserCredsSequence;
@@ -22,7 +22,7 @@ public class UserController implements UserClientApi {
 
     @Override
     public ResponseEntity<Void> createUser(@RequestBody
-                                               //@Validated(UserCredsSequence.class)
+                                               @Validated(UserCredsSequence.class)
                                                UserInformationRequestBody userInformationRequestBody) {
         log.debug("Trying to create a new user {} ", userInformationRequestBody.getUserName());
 
@@ -31,10 +31,11 @@ public class UserController implements UserClientApi {
     }
 
     @Override //TODO add has role admin role
-    public ResponseEntity<String> deleteUser(@PathVariable String userName) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String userName) {
         log.debug("Trying to delete a user {} ", userName);
 
-        return new ResponseEntity<>(userService.deleteUser(userName), HttpStatus.OK);
+        userService.deleteUser(userName);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
     @Override
     public ResponseEntity<AccessTokenResponse> getAccessToken(@RequestBody AccessTokenRequestBody refreshTokenRequestBody) {

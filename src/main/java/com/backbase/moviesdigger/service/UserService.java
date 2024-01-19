@@ -1,11 +1,11 @@
-package com.backbase.moviesdigger.auth.service;
+package com.backbase.moviesdigger.service;
 
 import com.backbase.moviesdigger.client.spec.model.AccessTokenResponse;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
 import com.backbase.moviesdigger.client.spec.model.UserInformationRequestBody;
 
 /**
- * Service responsible for interacting with users
+ * Service responsible for interacting with application users
  */
 public interface UserService {
 
@@ -19,9 +19,8 @@ public interface UserService {
      *
      * @param userName - user's name to proceed with removing
      *
-     * @return - {@link String} - successfully removed user name
      */
-    String deleteUser(String userName);
+    void deleteUser(String userName);
     /**
      * Login user
      *
@@ -41,6 +40,7 @@ public interface UserService {
      * Get logged-in user's access token
      *
      * @param refreshToken - user's refresh token value
+     * @param previousAccessToken - user's previous access token to revoke
      *
      * @return - {@link AccessTokenResponse} - access token and its expiration date in seconds from keycloak
      */

@@ -51,10 +51,8 @@ paths:
         '200':
           description: User deleted successfully
           content:
-            text/plain:
-              schema:
-                type: string
-              example: Dima
+            application/json:
+              example: {}
         '404':
           description: User not found
           content:
@@ -130,6 +128,7 @@ paths:
             application/json:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
+
   /client-api/v1/users/token:
     post:
       tags:

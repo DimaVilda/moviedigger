@@ -1,4 +1,4 @@
-package com.backbase.moviesdigger.auth.service.iml;
+package com.backbase.moviesdigger.service.iml;
 
 import com.backbase.moviesdigger.exceptions.ConflictException;
 import com.backbase.moviesdigger.exceptions.UnauthorizedException;

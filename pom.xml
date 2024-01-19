@@ -17,6 +17,7 @@
         <java.version>17</java.version>
         <openapi-generator-maven-plugin.version>6.4.0</openapi-generator-maven-plugin.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
+        <it.spring.profile>integration</it.spring.profile>
     </properties>
 
     <dependencies>
@@ -143,6 +144,31 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId> <!-- more info here https://www.baeldung.com/maven-integration-test -->
+                <version>3.0.0</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <spring.profiles.include>${it.spring.profile}</spring.profiles.include>
+                    </systemPropertyVariables>
+                    <excludes>
+                        <exclude>none</exclude>
+                    </excludes>
+                    <includes>
+                        <include>**/*IT.java</include> <!-- only for integration tests with suffix *IT.java -->
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>

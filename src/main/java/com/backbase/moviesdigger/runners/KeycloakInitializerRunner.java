@@ -1,11 +1,10 @@
 package com.backbase.moviesdigger.runners;
 
-import com.backbase.moviesdigger.auth.service.iml.KeycloakService;
-import com.backbase.moviesdigger.auth.service.iml.UserPersistenceService;
+import com.backbase.moviesdigger.service.iml.KeycloakService;
+import com.backbase.moviesdigger.service.iml.UserPersistenceService;
 import com.backbase.moviesdigger.cleanup.KeycloakCleanup;
 import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
 import jakarta.ws.rs.core.Response;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;

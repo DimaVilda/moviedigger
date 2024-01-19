@@ -1,4 +1,4 @@
-package com.backbase.moviesdigger.auth.service.iml;
+package com.backbase.moviesdigger.service.iml;
 
 import com.backbase.moviesdigger.domain.User;
 import com.backbase.moviesdigger.exceptions.ConflictException;
@@ -43,9 +43,10 @@ public class UserPersistenceService {
     public boolean isUserCreated(String userName) {
         return userJpaRepository.existsByNameIs(userName);
     }
-    public String deleteUser(String userName) {
+    public void deleteUser(String userName) {
         User user = findByUserName(userName);
         userJpaRepository.delete(user);
-        return userName;
+
+        log.debug("User {} removed successfully", userName);
     }
 }

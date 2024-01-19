@@ -1,6 +1,6 @@
-package com.backbase.moviesdigger.auth.service.iml;
+package com.backbase.moviesdigger.service.iml;
 
-import com.backbase.moviesdigger.auth.service.UserService;
+import com.backbase.moviesdigger.service.UserService;
 import com.backbase.moviesdigger.client.spec.model.AccessTokenResponse;
 import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
 import com.backbase.moviesdigger.client.spec.model.UserInformationRequestBody;
@@ -10,7 +10,6 @@ import com.backbase.moviesdigger.exceptions.UnauthorizedException;
 import com.backbase.moviesdigger.dtos.BearerTokenModel;
 import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
 import com.backbase.moviesdigger.utils.TokenMethodsUtil;
-import com.backbase.moviesdigger.utils.validation.validators.AllowedCreds;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,14 +55,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String deleteUser(String userName) {
+    public void deleteUser(String userName) {
         UsersResource usersResource = keycloak.realm(APPLICATION_REALM).users();
         if (!isUserExists(usersResource, userName)) {
             throw new NotFoundException("A user " + userName + " was not found in keycloak. " +
                     "Try to create user again or contact tech support.");
         }
         keycloakService.deleteUserFromKeycloak(usersResource, userName);
-        return userPersistenceService.deleteUser(userName);
+        userPersistenceService.deleteUser(userName);
     }
 
     @Override
