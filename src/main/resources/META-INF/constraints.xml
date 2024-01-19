@@ -1,0 +1,14 @@
+<constraint-mappings
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://jboss.org/xml/ns/javax/validation/mapping validation-mapping-1.1.xsd"
+        xmlns="http://jboss.org/xml/ns/javax/validation/mapping" version="1.1">
+
+    <bean class="com.backbase.moviesdigger.client.spec.model.UserInformationRequestBody" ignore-annotations="false">
+        <field name="userName">
+            <constraint annotation="com.backbase.moviesdigger.utils.validation.validators.AllowedCreds"/>
+        </field>
+        <field name="password">
+            <constraint annotation="com.backbase.moviesdigger.utils.validation.validators.AllowedCreds"/>
+        </field>
+    </bean>
+</constraint-mappings>

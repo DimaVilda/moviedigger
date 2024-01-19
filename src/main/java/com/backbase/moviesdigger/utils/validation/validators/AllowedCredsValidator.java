@@ -23,17 +23,7 @@ public class AllowedCredsValidator implements ConstraintValidator<AllowedCreds, 
         return credValue.matches(regex);
     }
 
-/*    private boolean isValidPassword(String password) {
-        return isCredMatchesAllowedCharacters(password);
-    }
-
-    private boolean isCredMatchesAllowedCharacters(String credValue) {
-        String regex = "^[\\w*!&?@$]+$";
-        return credValue.matches(regex);
-    }*/
-
     private void buildViolationForInvalidCred(String credValue, ConstraintValidatorContext context) {
-        //  context.disableDefaultConstraintViolation();
         context.unwrap(HibernateConstraintValidatorContext.class)
                 .addMessageParameter("credValue", credValue)
                 .buildConstraintViolationWithTemplate("Your provided creds contain illegal characters:" + credValue)
