@@ -1,5 +1,6 @@
-package com.backbase.moviesdigger.service.iml;
+package com.backbase.moviesdigger.service.impl;
 
+import com.backbase.moviesdigger.client.spec.model.MovieRatingRequestBody;
 import com.backbase.moviesdigger.repository.RatingJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,5 +17,10 @@ public class RatingPersistenceService {
         ratingJpaRepository.deleteById(ratingId);
 
         log.debug("Rating {} was successfully deleted", ratingId);
+    }
+
+    public boolean isRatingExistsInDb(MovieRatingRequestBody movieRatingRequestBody) {
+        // ratingJpaRepository.
+        return true;
     }
 }

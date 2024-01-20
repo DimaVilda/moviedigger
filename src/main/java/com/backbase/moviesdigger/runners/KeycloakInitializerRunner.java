@@ -1,7 +1,7 @@
 package com.backbase.moviesdigger.runners;
 
-import com.backbase.moviesdigger.service.iml.KeycloakService;
-import com.backbase.moviesdigger.service.iml.UserPersistenceService;
+import com.backbase.moviesdigger.service.impl.KeycloakService;
+import com.backbase.moviesdigger.service.impl.UserPersistenceService;
 import com.backbase.moviesdigger.cleanup.KeycloakCleanup;
 import com.backbase.moviesdigger.utils.KeycloakMethodsUtil;
 import jakarta.ws.rs.core.Response;
@@ -11,6 +11,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.*;
 import org.keycloak.representations.idm.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -21,6 +22,7 @@ import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.*;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@Profile(value = "default")
 public class KeycloakInitializerRunner implements CommandLineRunner {
 
     private final Keycloak keycloak;

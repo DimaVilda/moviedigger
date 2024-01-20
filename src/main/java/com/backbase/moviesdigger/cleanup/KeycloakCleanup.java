@@ -3,12 +3,14 @@ package com.backbase.moviesdigger.cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.APPLICATION_REALM;
 
 @Component
 @Slf4j
+@Profile(value = {"default"})
 public class KeycloakCleanup implements DisposableBean {
 
     private final Keycloak keycloak;

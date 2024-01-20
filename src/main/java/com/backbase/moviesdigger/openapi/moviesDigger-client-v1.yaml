@@ -83,7 +83,46 @@ paths:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
 
-  /movies/{movieName}/rating:
+  /client-api/v1/movies/{movieName}:
+    get:
+      tags:
+        - movieDiggerClient
+      summary: Get movies by provided movie name
+      description: Retrieve a list of movies by movie name provided my user
+      operationId: getMovies
+      parameters:
+        - name: movieName
+          description: The name of the movie
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Movies response list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMoviesResponseBody'
+              example:
+                - id: 466b8c0e-238e-46f3-9dba-dae01439bc26
+                  name: Titanic
+                  rating: 91
+                  boxOffice: 2000000090.78
+        '404':
+          description: Provided movie not found
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+        '500':
+          description: An unexpected condition was encountered
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+
+  /client-api/v1/movies/{movieName}/rating:
     get:
       tags:
         - movieDiggerClient
@@ -116,19 +155,14 @@ paths:
             application/json:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
-    patch:
+
+  /client-api/v1/movies/rating:
+    post:
       tags:
         - movieDiggerClient
       summary: Update a movie's rating
       description: Updates the rating of provided movie specified by movie name
       operationId: provideMovieRating
-      parameters:
-        - name: movieName
-          description: The name of the movie
-          in: path
-          required: true
-          schema:
-            type: string
       requestBody:
         description: Rating value for a certain movie
         required: true
@@ -165,7 +199,7 @@ paths:
               schema:
                 $ref: 'common.yaml#/components/schemas/Error'
 
-  /movies/rating/{ratingId}:
+  /client-api/v1/movies/rating/{ratingId}:
     delete:
       tags:
         - movieDiggerClient
@@ -226,6 +260,10 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/TopRatedMovieResponseBodyItem'
+    GetMoviesResponseBody:
+      type: array
+      items:
+        $ref: '#/components/schemas/MovieResponseBodyItem'
     TopRatedMovieResponseBodyItem:
       type: object
       required:
@@ -233,6 +271,27 @@ components:
         - rating
         - boxOffice
       properties:
+        name:
+          description: Top rated movie name
+          type: string
+        rating:
+          description: Top rated movie rating
+          type: integer
+          format: int32
+        boxOffice:
+          description: Movie's box office value
+          type: number
+          format: float
+    MovieResponseBodyItem:
+      type: object
+      required:
+        - id
+        - name
+        - rating
+        - boxOffice
+      properties:
+        id:
+          $ref: 'common.yaml#/components/schemas/Uuid'
         name:
           description: Top rated movie name
           type: string
@@ -260,8 +319,11 @@ components:
     MovieRatingRequestBody:
       type: object
       required:
+        - movieId
         - rating
       properties:
+        movieId:
+          $ref: 'common.yaml#/components/schemas/Uuid'
         rating:
           description: The new rating for the movie
           type: integer

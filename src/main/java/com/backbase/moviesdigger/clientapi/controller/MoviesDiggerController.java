@@ -1,11 +1,8 @@
 package com.backbase.moviesdigger.clientapi.controller;
 
+import com.backbase.moviesdigger.client.spec.model.*;
 import com.backbase.moviesdigger.service.MoviesDiggerService;
 import com.backbase.moviesdigger.client.spec.api.MovieDiggerClientApi;
-import com.backbase.moviesdigger.client.spec.model.MovieRatingRequestBody;
-import com.backbase.moviesdigger.client.spec.model.MovieRatingResponseBody;
-import com.backbase.moviesdigger.client.spec.model.MovieWinnerResponseBodyItem;
-import com.backbase.moviesdigger.client.spec.model.TopRatedMovieResponseBodyItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,6 +32,14 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
+    public ResponseEntity<List<MovieResponseBodyItem>> getMovies(String movieName) { //TODO implement now
+        log.debug("Trying to retrieve movies by provided movie name {}", movieName);
+
+        return new ResponseEntity<>(moviesDiggerService.getMovies(movieName),HttpStatus.OK);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
     public ResponseEntity<List<TopRatedMovieResponseBodyItem>> getTopRatedMovies(String sortDirection) {
         return null;
     }
@@ -47,11 +52,15 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<MovieRatingResponseBody> provideMovieRating(String movieName, MovieRatingRequestBody movieRatingRequestBody) {
-        log.debug("Trying to provide a rating {} to movie {}", movieRatingRequestBody.getRating(), movieName);
+    public ResponseEntity<MovieRatingResponseBody> provideMovieRating(MovieRatingRequestBody movieRatingRequestBody) {
+        log.debug("Trying to provide a rating {} to movie {}",
+                movieRatingRequestBody.getRating(),
+                movieRatingRequestBody.getMovieId());
 
-        return new ResponseEntity<>(moviesDiggerService.provideMovieRating(movieName, movieRatingRequestBody), HttpStatus.CREATED);
+        return new ResponseEntity<>(moviesDiggerService.provideMovieRating(movieRatingRequestBody), HttpStatus.CREATED);
     }
+
+
 
     @Override
     @PreAuthorize("hasRole('" + REALM_ADMIN_ROLE + "')")
@@ -60,6 +69,5 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
 
         moviesDiggerService.deleteMovieRating(ratingId.toString());
         return new ResponseEntity<>(HttpStatus.OK);
-        //return ResponseEntity.ok().build(); ???
     }
 }

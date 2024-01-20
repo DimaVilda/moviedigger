@@ -1,4 +1,4 @@
-package com.backbase.moviesdigger.service.iml;
+package com.backbase.moviesdigger.service.impl;
 
 import com.backbase.moviesdigger.service.UserService;
 import com.backbase.moviesdigger.client.spec.model.AccessTokenResponse;

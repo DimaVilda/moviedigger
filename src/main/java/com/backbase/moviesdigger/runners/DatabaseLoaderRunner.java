@@ -8,6 +8,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.FileReader;
@@ -18,6 +19,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@Profile(value = "default")
 public class DatabaseLoaderRunner implements CommandLineRunner {
 
     private final MovieJpaRepository movieRepository;
