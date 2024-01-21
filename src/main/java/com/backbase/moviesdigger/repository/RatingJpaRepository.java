@@ -13,6 +13,11 @@ public interface RatingJpaRepository extends JpaRepository<Rating, String> {
 
     List<Rating> findRatingsByMovieId(String movieId);
 
-    @Query("select case when count(r) > 0 then true else false end from rating r where r.user.name = :userName")
-    boolean findRatingByUserName(@Param("userName") String userName);
+    @Query("select case when count(r) > 0 " +
+            "then true else false end from rating r " +
+            "where r.user.name = :userName " +
+            "and r.movie.id = :movieId")
+    boolean findRatingByUserName(
+            @Param("userName") String userName,
+            @Param("movieId") String movieId);
 }

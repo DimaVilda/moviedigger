@@ -5,6 +5,7 @@ import com.backbase.moviesdigger.service.MoviesDiggerService;
 import com.backbase.moviesdigger.client.spec.api.MovieDiggerClientApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,22 +27,30 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<MovieRatingResponseBody> getMovieRating(String movieName) {
+    public ResponseEntity<MovieRatingResponseBody> getMovieRating(String movieName) { //TODO by id ?
         return null;
     }
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<List<MovieResponseBodyItem>> getMovies(String movieName) { //TODO implement now
+    public ResponseEntity<List<MovieResponseBodyItem>> getMovies(String movieName) {
         log.debug("Trying to retrieve movies by provided movie name {}", movieName);
 
         return new ResponseEntity<>(moviesDiggerService.getMovies(movieName),HttpStatus.OK);
     }
 
     @Override
-    @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<List<TopRatedMovieResponseBodyItem>> getTopRatedMovies(String sortDirection) {
-        return null;
+    public ResponseEntity<List<TopRatedMovieResponseBodyItem>> getTopRatedMovies(Integer page,
+                                                                                 Integer pageSize,
+                                                                                 String sortDirection) { //TODO implementing now
+        log.debug("Trying to retrieve top rated movies for {} page of {} size, " +
+                "ordered by box office in {} direction",page, pageSize, sortDirection);
+
+        return new ResponseEntity<>(moviesDiggerService.getTopRatedMovies(
+                page,
+                pageSize,
+                Sort.Direction.valueOf(sortDirection.toUpperCase())
+        ),HttpStatus.OK);
     }
 
     @Override

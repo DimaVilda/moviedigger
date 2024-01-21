@@ -31,7 +31,9 @@ public class OMDBService {
 
     public Movie getMovieByTitle(String movieName) {
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+        queryParams.add("apikey", OMDB_API_KEY);
         queryParams.add("t", movieName);
+        queryParams.add("plot", "short");
 
         try {
             ResponseEntity<String> omdbResponse = processOMDBAPI(
@@ -102,7 +104,6 @@ public class OMDBService {
 
         RestTemplate restTemplate = new RestTemplate();
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(path)
-                .queryParam("apikey", OMDB_API_KEY)
                 .queryParams(queryParams);
 
         HttpEntity<?> entity = new HttpEntity<>(body);

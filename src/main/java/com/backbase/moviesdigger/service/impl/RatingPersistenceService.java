@@ -28,8 +28,8 @@ public class RatingPersistenceService {
         return ratingJpaRepository.findRatingsByMovieId(movieId);
     }
 
-    public boolean isRatingWasAlreadyProvidedByUser(String userName) {
-        return ratingJpaRepository.findRatingByUserName(userName);
+    public boolean isRatingWasAlreadyProvidedByUser(String userName, String movieId) {
+        return ratingJpaRepository.findRatingByUserName(userName, movieId);
     }
 
     @Transactional

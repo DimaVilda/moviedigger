@@ -3,21 +3,24 @@ package com.backbase.moviesdigger.service.impl;
 import com.backbase.moviesdigger.client.spec.model.MovieRatingRequestBody;
 import com.backbase.moviesdigger.client.spec.model.MovieRatingResponseBody;
 import com.backbase.moviesdigger.client.spec.model.MovieResponseBodyItem;
+import com.backbase.moviesdigger.client.spec.model.TopRatedMovieResponseBodyItem;
 import com.backbase.moviesdigger.domain.Movie;
 import com.backbase.moviesdigger.domain.Rating;
 import com.backbase.moviesdigger.domain.User;
 import com.backbase.moviesdigger.mappers.MovieRatingResponseBodyMapper;
 import com.backbase.moviesdigger.mappers.MovieResponseBodyItemMapper;
+import com.backbase.moviesdigger.mappers.TopRatedMovieResponseBodyItemMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class SyncService {
 
     private final MovieResponseBodyItemMapper movieResponseBodyItemMapper;
     private final MovieRatingResponseBodyMapper movieRatingResponseBodyMapper;
+    private final TopRatedMovieResponseBodyItemMapper topRatedMovieResponseBodyItemMapper;
 
     public List<MovieResponseBodyItem> getMovies(String movieName) {
         List<Movie> moviesListFromDb = moviePersistenceService.getMoviesByName(movieName);
@@ -44,6 +48,25 @@ public class SyncService {
                 updatedMovies.isEmpty() ? moviesListFromDb : updatedMovies);
     }
 
+    public List<TopRatedMovieResponseBodyItem> getTopRatedMovies(Integer page,
+                                                                 Integer pageSize,
+                                                                 Sort.Direction sortDirection) {
+        List<Movie> moviesList = updateMoviesWithBoxOfficeValue(moviePersistenceService.getTopRatedMoviesByUserRating());
+        int start = page * pageSize;
+        int end = Math.min((page + 1) * pageSize, moviesList.size());
+        List<Movie> paginatedMovies = moviesList.subList(start, end);
+
+/*        Comparator<Movie> comparator = Comparator.comparing(Movie::getOfficeBoxValue);
+        comparator = sortDirection.isDescending() ? comparator.reversed() : comparator;
+        moviesList.sort(comparator);*/
+        paginatedMovies.sort(
+                sortDirection.isDescending()
+                        ? Comparator.comparing(Movie::getOfficeBoxValue, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        : Comparator.comparing(Movie::getOfficeBoxValue, Comparator.nullsLast(Comparator.naturalOrder()))
+                );
+        return topRatedMovieResponseBodyItemMapper.toTopRatedMovieResponseBodyItemList(paginatedMovies);
+    }
+
     private Movie findMovieInOMDBbyName(String movieName) { // here the OMDB getMovie contract gives only one movie in response
         log.debug("Movie {} was not found in a local store so let's try to get it from OMDB service", movieName);
 
@@ -55,10 +78,12 @@ public class SyncService {
         log.debug("Some of movies from local store might " +
                 "not have boxOffice value, let's check it and update them from OMDB service");
 
-        return moviesListFromDb.stream()
+        moviesListFromDb.stream()
                 .filter(movie -> Objects.isNull(movie.getOfficeBoxValue())) // Filter movies with null officeBoxValue
-                .map(movie -> omdbService.getMovieByTitle(movie.getName()))
-                .collect(Collectors.toList());
+                .forEach(movie -> movie.setOfficeBoxValue(
+                        omdbService.getMovieByTitle(movie.getName()).getOfficeBoxValue()
+                ));
+        return moviesListFromDb;
     }
 
     public MovieRatingResponseBody provideMovieRating(MovieRatingRequestBody movieRatingRequestBody, String userName) {

@@ -57,11 +57,29 @@ paths:
       description: Retrieve a list of the top 10 top-rated movies with optional sorting by box office value
       operationId: getTopRatedMovies
       parameters:
-        - name: sort-direction
-          description: The direction in which to sort movies
+        - name: page
+          description: Paged response number.
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
           in: query
+          required: false
+        - name: page-size
+          description: The size of the paged response in number of top movies returned. If omitted 10 movies are returned.
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+          in: query
+          required: false
+        - name: sort-direction
+          description: The direction in which to sort movies, if not provided, sort in ASC direction
+          in: query
+          required: false
           schema:
             type: string
+            default: ASC
             x-extensible-enum:
               - ASC
               - DESC
@@ -126,7 +144,7 @@ paths:
     get:
       tags:
         - movieDiggerClient
-      summary: Provide a rating of certain movie
+      summary: Retrieve a rating of certain movie
       description: Retrieves the rating of a movie specified by the movie name
       operationId: getMovieRating
       parameters:
