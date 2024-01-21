@@ -9,22 +9,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.backbase.moviesdigger.client.spec.model.Error;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class ApiExceptionsHandler {
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Error> notFoundExceptionHandler(NotFoundException ex) {
-        Error error = new Error();
-        error.setMessage(ex.getMessage());
-        error.setCode(404);
-
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Error> badRequestExceptionHandler(BadRequestException ex) {
@@ -44,11 +34,29 @@ public class ApiExceptionsHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Error> notFoundExceptionHandler(NotFoundException ex) {
+        Error error = new Error();
+        error.setMessage(ex.getMessage());
+        error.setCode(404);
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<Error> conflictExceptionHandler(ConflictException ex) {
         Error error = new Error();
         error.setMessage(ex.getMessage());
         error.setCode(409);
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(GeneralException.class)
+    public ResponseEntity<Error> genericExceptionsFromServer(GeneralException ex) {
+        Error error = new Error();
+        error.setMessage(ex.getMessage());
+        error.setCode(500);
 
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }

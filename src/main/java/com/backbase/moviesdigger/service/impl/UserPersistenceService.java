@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -16,6 +17,7 @@ public class UserPersistenceService {
 
     private final UserJpaRepository userJpaRepository;
 
+    @Transactional
     public void saveUser(String userName) {
         log.debug("Trying to save a new user {}: ", userName);
         try {
@@ -29,7 +31,7 @@ public class UserPersistenceService {
         }
     }
 
-    private User findByUserName(String userName) {
+    public User findByUserName(String userName) {
         log.debug("Trying to get user by name {}: ", userName);
 
         return userJpaRepository
@@ -43,6 +45,8 @@ public class UserPersistenceService {
     public boolean isUserCreated(String userName) {
         return userJpaRepository.existsByNameIs(userName);
     }
+
+    @Transactional
     public void deleteUser(String userName) {
         User user = findByUserName(userName);
         userJpaRepository.delete(user);

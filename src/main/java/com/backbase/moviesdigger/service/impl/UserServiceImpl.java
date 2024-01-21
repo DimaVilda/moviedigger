@@ -54,7 +54,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public void deleteUser(String userName) {
         UsersResource usersResource = keycloak.realm(APPLICATION_REALM).users();
         if (!isUserExists(usersResource, userName)) {
@@ -66,7 +65,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public LoggedInUserResponse login(UserInformationRequestBody loggedInUserInformation) {
         String userName = loggedInUserInformation.getUserName();
         String userPassword = loggedInUserInformation.getPassword();

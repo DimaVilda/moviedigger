@@ -13,5 +13,5 @@ public interface MovieJpaRepository extends JpaRepository<Movie, String> {
     @Query("select case when count(m) > 0 then true else false end from movie m")
     boolean isMovieTableEmpty();
 
-    List<Movie> findMoviesByNameContaining(String movieName);
+    List<Movie> findMoviesByNameContainingIgnoreCase(String movieName);
 }

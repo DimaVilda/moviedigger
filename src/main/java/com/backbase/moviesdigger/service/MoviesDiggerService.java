@@ -1,7 +1,5 @@
 package com.backbase.moviesdigger.service;
 
-
-import com.backbase.moviesdigger.client.spec.model.LoggedInUserResponse;
 import com.backbase.moviesdigger.client.spec.model.MovieRatingRequestBody;
 import com.backbase.moviesdigger.client.spec.model.MovieRatingResponseBody;
 import com.backbase.moviesdigger.client.spec.model.MovieResponseBodyItem;
@@ -23,9 +21,9 @@ public interface MoviesDiggerService {
 
     /**
      *
-     * @param movieName
-     * @param movieRatingRequestBody
-     * @return
+     * @param movieRatingRequestBody - a request body contains a rating value to a certain movie by its id
+     *
+     * @return - {@link MovieRatingResponseBody} - a movie name with recalculated rating
      */
     MovieRatingResponseBody provideMovieRating(MovieRatingRequestBody movieRatingRequestBody);
     /**

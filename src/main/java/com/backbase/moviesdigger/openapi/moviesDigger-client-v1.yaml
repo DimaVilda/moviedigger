@@ -74,7 +74,7 @@ paths:
                 $ref: '#/components/schemas/GetTopRatedMoviesResponseBody'
               example:
                 - name: Titanic
-                  rating: 91
+                  rating: 9.1
                   boxOffice: 2000000090.78
         '500':
           description: An unexpected condition was encountered
@@ -107,7 +107,7 @@ paths:
               example:
                 - id: 466b8c0e-238e-46f3-9dba-dae01439bc26
                   name: Titanic
-                  rating: 91
+                  rating: 9.1
                   boxOffice: 2000000090.78
         '404':
           description: Provided movie not found
@@ -160,11 +160,11 @@ paths:
     post:
       tags:
         - movieDiggerClient
-      summary: Update a movie's rating
-      description: Updates the rating of provided movie specified by movie name
+      summary: Provide movie's rating
+      description: Create the rating of provided movie by rating value and movie id
       operationId: provideMovieRating
       requestBody:
-        description: Rating value for a certain movie
+        description: Rating value for a certain movie represented by their id value
         required: true
         content:
           application/json:
@@ -179,7 +179,7 @@ paths:
                 $ref: '#/components/schemas/MovieRatingResponseBody'
               example:
                 - name: Titanic
-                  rating: 91
+                  rating: 9.1
         '400':
           description: Invalid rating value
           content:
@@ -188,6 +188,12 @@ paths:
                 $ref: 'common.yaml#/components/schemas/Error'
         '404':
           description: Provided movie not found
+          content:
+            application/json:
+              schema:
+                $ref: 'common.yaml#/components/schemas/Error'
+        '409':
+          description: Rating already was provided by this user before
           content:
             application/json:
               schema:
@@ -276,12 +282,10 @@ components:
           type: string
         rating:
           description: Top rated movie rating
-          type: integer
-          format: int32
+          type: string
         boxOffice:
           description: Movie's box office value
-          type: number
-          format: float
+          type: string
     MovieResponseBodyItem:
       type: object
       required:
@@ -297,12 +301,10 @@ components:
           type: string
         rating:
           description: Top rated movie rating
-          type: integer
-          format: int32
+          type: string
         boxOffice:
           description: Movie's box office value
-          type: number
-          format: float
+          type: string
     MovieRatingResponseBody:
       type: object
       required:
@@ -314,8 +316,7 @@ components:
           type: string
         rating:
           description: Rated movie rating
-          type: integer
-          format: int32
+          type: string
     MovieRatingRequestBody:
       type: object
       required:
@@ -328,6 +329,8 @@ components:
           description: The new rating for the movie
           type: integer
           format: int32
+          minimum: 1
+          maximum: 10
 
 
 

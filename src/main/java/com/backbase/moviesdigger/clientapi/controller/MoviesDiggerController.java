@@ -60,8 +60,6 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
         return new ResponseEntity<>(moviesDiggerService.provideMovieRating(movieRatingRequestBody), HttpStatus.CREATED);
     }
 
-
-
     @Override
     @PreAuthorize("hasRole('" + REALM_ADMIN_ROLE + "')")
     public ResponseEntity<Void> deleteMovieRating(UUID ratingId) {
