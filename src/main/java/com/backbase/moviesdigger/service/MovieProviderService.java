@@ -7,11 +7,12 @@ public interface MovieProviderService {
     /**
      * Fetches movie details by its title.
      *
-     * @param movieName The name of the movie to fetch.
+     * @param movieName the name of the movie to fetch.
+     * @param year - movie's release year
      *
      * @return - {@link Movie} - object with the details.
      */
-    Movie getMovieByTitle(String movieName);
+    Movie getMovieByTitleAndYearOptional(String movieName, Integer year);
 
     <T> T getMovieFieldByTitle(String movieName, String movieField, Class<T> className);
 }

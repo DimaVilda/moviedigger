@@ -20,10 +20,10 @@ public class MoviePersistenceService {
 
     private final MovieJpaRepository movieJpaRepository;
 
-    public List<Movie> getMoviesByName(String movieName) {
+    public List<Movie> getMoviesByNameAndOptionalYear(String movieName, Integer year) {
         log.debug("Trying to retrieve movies by name {} from local store", movieName);
 
-        return movieJpaRepository.findMoviesByName(movieName);
+        return movieJpaRepository.findMoviesByNameAndOptionalYear(movieName, year);
     }
 
     public Movie getMovieByRatingId(String ratingId) {
@@ -48,6 +48,8 @@ public class MoviePersistenceService {
     }
 
     public Movie getMovieById(String movieId) {
+        log.debug("Trying to get movie by id {}", movieId);
+
         return movieJpaRepository.findById(movieId)
                 .orElseThrow(() -> {
                     log.warn("Provided movie {} in request was not found", movieId);
@@ -57,6 +59,8 @@ public class MoviePersistenceService {
     }
 
     public List<Movie> getTopRatedMoviesByUserRating(Integer page, Integer pageSize) {
+        log.debug("Trying to retrieve top rated DESC movies from large to small in page {}, size {}", page, pageSize);
+
         Pageable pageable = PageRequest.of(page, pageSize, Sort.Direction.DESC, "avgRating");
         return movieJpaRepository.findAll(pageable).getContent();
     }

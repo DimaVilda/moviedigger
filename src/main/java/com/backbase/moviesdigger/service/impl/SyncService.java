@@ -31,8 +31,8 @@ public class SyncService {
     private final TopRatedMovieResponseBodyItemMapper topRatedMovieResponseBodyItemMapper;
     private final MovieWinnerResponseBodyItemMapper movieWinnerResponseBodyItemMapper;
 
-    public List<MovieWinnerResponseBodyItem> getWinner(String movieName) {
-        List<Movie> moviesListFromDb = moviePersistenceService.getMoviesByName(movieName);
+    public List<MovieWinnerResponseBodyItem> getWinner(String movieName, Integer year) {
+        List<Movie> moviesListFromDb = moviePersistenceService.getMoviesByNameAndOptionalYear(movieName, year);
         if (!moviesListFromDb.isEmpty()) {
             return movieWinnerResponseBodyItemMapper.toMovieWinnerResponseBodyItemList(
                     moviesListFromDb.stream()
@@ -40,18 +40,18 @@ public class SyncService {
                             .toList()
             );
         } else {
-            Movie movieFromOMDB = findMovieInOMDBbyName(movieName);
+            Movie movieFromOMDB = findMovieInOMDBbyName(movieName, year);
             return movieFromOMDB.getIsWinner() == 1 ? Collections.singletonList(
                     movieWinnerResponseBodyItemMapper.toMovieWinnerResponseBodyItemModel(movieFromOMDB)
             ) : Collections.emptyList();
         }
     }
 
-    public List<MovieResponseBodyItem> getMovies(String movieName) {
-        List<Movie> moviesListFromDb = moviePersistenceService.getMoviesByName(movieName);
+    public List<MovieResponseBodyItem> getMovies(String movieName, Integer year) {
+        List<Movie> moviesListFromDb = moviePersistenceService.getMoviesByNameAndOptionalYear(movieName, year);
         if (moviesListFromDb.isEmpty()) {
             return Collections.singletonList(
-                    movieResponseBodyItemMapper.toMovieResponseBodyItemModel(findMovieInOMDBbyName(movieName))
+                    movieResponseBodyItemMapper.toMovieResponseBodyItemModel(findMovieInOMDBbyName(movieName, year))
             );
         }
         List<Movie> updatedMovies = updateMoviesWithBoxOfficeValue(moviesListFromDb);
@@ -63,6 +63,9 @@ public class SyncService {
     public List<TopRatedMovieResponseBodyItem> getTopRatedMovies(Integer page,
                                                                  Integer pageSize,
                                                                  Sort.Direction sortDirection) {
+        log.debug("Truing to retrieve top-rated movies to page {}, pageSize is {}, and sort by box office value {}",
+                page, page, sortDirection);
+
         List<Movie> paginatedMovies = updateMoviesWithBoxOfficeValue(
                 moviePersistenceService.getTopRatedMoviesByUserRating(page - 1, pageSize)
         ).stream()
@@ -76,10 +79,10 @@ public class SyncService {
         return topRatedMovieResponseBodyItemMapper.toTopRatedMovieResponseBodyItemList(paginatedMovies);
     }
 
-    private Movie findMovieInOMDBbyName(String movieName) { // here the OMDB getMovie contract gives only one movie in response
+    private Movie findMovieInOMDBbyName(String movieName, Integer year) { // here the OMDB getMovie contract gives only one movie in response
         log.debug("Movie {} was not found in a local store so let's try to get it from OMDB service", movieName);
 
-        Movie movieFromOMDB = movieProviderService.getMovieByTitle(movieName);
+        Movie movieFromOMDB = movieProviderService.getMovieByTitleAndYearOptional(movieName, year);
         return moviePersistenceService.saveMovie(movieFromOMDB);
     }
 

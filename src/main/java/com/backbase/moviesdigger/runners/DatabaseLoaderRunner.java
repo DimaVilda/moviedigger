@@ -62,7 +62,7 @@ public class DatabaseLoaderRunner implements CommandLineRunner {
 
                         Matcher yearMatcher = yearPattern.matcher(record.get("Year"));
                         if (yearMatcher.find()) {
-                            movie.setMovieYear(yearMatcher.group(1));
+                            movie.setReleaseYear(Integer.parseInt(yearMatcher.group(1)));
                         }
 
                         moviesToSave.add(movie);

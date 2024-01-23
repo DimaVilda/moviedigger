@@ -32,8 +32,8 @@ public class Movie {
     private Integer isWinner;
 
     @EqualsAndHashCode.Include
-    @Column(name = "movie_year", nullable = false, length = 36)
-    private String movieYear;
+    @Column(name = "release_year", nullable = false)
+    private Integer releaseYear;
 
     @Column(name = "office_box_value", precision = 13, scale = 3)
     private BigDecimal officeBoxValue;

@@ -125,7 +125,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private boolean isUserExists(UsersResource usersResource, String userName) {
-        List<UserRepresentation> existingUsers = usersResource.search(userName);
+        List<UserRepresentation> existingUsers = usersResource.search(userName)
+                .stream()
+                .filter(user -> user.getUsername().equals(userName))
+                .toList();
         return !existingUsers.isEmpty();
     }
 }

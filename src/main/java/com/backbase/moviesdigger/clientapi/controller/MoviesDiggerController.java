@@ -26,17 +26,17 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<List<MovieResponseBodyItem>> getMovies(String movieName) { // todo add year in response, maybe add to query param
+    public ResponseEntity<List<MovieResponseBodyItem>> getMovies(String movieName, Integer year) {
         log.debug("Trying to retrieve movies by provided movie name {}", movieName);
 
-        return new ResponseEntity<>(moviesDiggerService.getMovies(movieName),HttpStatus.OK);
+        return new ResponseEntity<>(moviesDiggerService.getMovies(movieName, year),HttpStatus.OK);
     }
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
     public ResponseEntity<List<TopRatedMovieResponseBodyItem>> getTopRatedMovies(Integer page,
                                                                                  Integer pageSize,
-                                                                                 String sortDirection) { //todo add year in response
+                                                                                 String sortDirection) {
         log.debug("Trying to retrieve top rated movies for {} page of {} size, " +
                 "ordered by box office in {} direction",page, pageSize, sortDirection);
 
@@ -49,15 +49,15 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<List<MovieWinnerResponseBodyItem>> getWinner(String movieName) { //todo add year and check if was insetred already
+    public ResponseEntity<List<MovieWinnerResponseBodyItem>> getWinner(String movieName, Integer year) {
         log.debug("Trying to check if requested movie {} won a Best Picture", movieName);
 
-        return new ResponseEntity<>(moviesDiggerService.getWinner(movieName),HttpStatus.OK);
+        return new ResponseEntity<>(moviesDiggerService.getWinner(movieName, year),HttpStatus.OK);
     }
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<MovieRatingResponseBody> provideMovieRating(MovieRatingRequestBody movieRatingRequestBody) { // add year in response
+    public ResponseEntity<MovieRatingResponseBody> provideMovieRating(MovieRatingRequestBody movieRatingRequestBody) {
         log.debug("Trying to provide a rating {} to movie {}",
                 movieRatingRequestBody.getRating(),
                 movieRatingRequestBody.getMovieId());

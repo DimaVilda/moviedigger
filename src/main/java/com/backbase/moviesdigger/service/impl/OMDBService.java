@@ -34,7 +34,7 @@ public class OMDBService implements MovieProviderService {
     @Override
     public <T> T getMovieFieldByTitle(String movieName, String movieField, Class<T> className) {
         try {
-            Map<String, Object> responseMap = fetchMovieDataWithRetry(movieName);
+            Map<String, Object> responseMap = fetchMovieDataWithRetry(movieName, null);
 
             if (responseMap.containsKey(movieField)) {
                 Object fieldValue = responseMap.get(movieField);
@@ -59,9 +59,9 @@ public class OMDBService implements MovieProviderService {
     }
 
     @Override
-    public Movie getMovieByTitle(String movieName) {
+    public Movie getMovieByTitleAndYearOptional(String movieName, Integer year) {
         try {
-            Map<String, Object> responseMap = fetchMovieDataWithRetry(movieName);
+            Map<String, Object> responseMap = fetchMovieDataWithRetry(movieName, year);
             return mapResponseToMovieEntity(responseMap);
         } catch (NotFoundException e) {
             throw e;
@@ -72,12 +72,12 @@ public class OMDBService implements MovieProviderService {
         }
     }
 
-    private Map<String, Object> fetchMovieDataWithRetry(String movieName) throws Exception {
-        Map<String, Object> responseMap = fetchMovieData(movieName);
+    private Map<String, Object> fetchMovieDataWithRetry(String movieName, Integer year) throws Exception {
+        Map<String, Object> responseMap = fetchMovieData(movieName, year);
         if (isMovieNotFound(responseMap)) {
             if (movieName.contains(" ")) {
                 String firstWord = movieName.split("\\s+")[0];
-                responseMap = fetchMovieData(firstWord);
+                responseMap = fetchMovieData(firstWord, year);
                 if (isMovieNotFound(responseMap)) {
                     log.warn("Provided movie {} was not found", movieName);
                     throw new NotFoundException("A movie " + movieName + " was not found");
@@ -90,11 +90,14 @@ public class OMDBService implements MovieProviderService {
         return responseMap;
     }
 
-    private Map<String, Object> fetchMovieData(String movieName) throws Exception {
+    private Map<String, Object> fetchMovieData(String movieName, Integer year) throws Exception {
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
         queryParams.add("apikey", apiKey);
         queryParams.add("t", movieName);
         queryParams.add("plot", "short");
+        if (year != null) {
+            queryParams.add("y", year.toString());
+        }
 
         ResponseEntity<String> omdbResponse = processAPI(
                 baseUrl,
@@ -118,7 +121,13 @@ public class OMDBService implements MovieProviderService {
 
         Movie movie = new Movie();
         movie.setName((String) responseMap.get("Title"));
-        movie.setMovieYear((String) responseMap.get("Year"));
+        String yearString = (String) responseMap.get("Year");
+        if (yearString.contains("–") || yearString.contains("-")) {
+            String firstYear = yearString.split("–")[0];
+            movie.setReleaseYear(Integer.parseInt(firstYear));
+        } else {
+            movie.setReleaseYear(Integer.parseInt(yearString));
+        }
 
         String awards = (String) responseMap.get("Awards");
         if (awards != null && !awards.equals("N/A") &&
@@ -144,7 +153,7 @@ public class OMDBService implements MovieProviderService {
         }
     }
 
-    private <T> ResponseEntity<T> processAPI( //TODO could me moved to api service
+    private <T> ResponseEntity<T> processAPI(
                                               String path,
                                               HttpMethod method,
                                               MultiValueMap<String, String> queryParams,

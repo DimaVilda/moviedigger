@@ -19,6 +19,7 @@ public interface MovieResponseBodyItemMapper {
 
     @Mapping(target = "boxOffice", source = "officeBoxValue")
     @Mapping(target = "rating", source = "avgRating")
+    @Mapping(target = "year", source = "releaseYear")
     MovieResponseBodyItem toMovieResponseBodyItemModel(
             Movie movie);
 }

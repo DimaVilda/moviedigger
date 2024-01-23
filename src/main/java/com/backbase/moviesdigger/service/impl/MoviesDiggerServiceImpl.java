@@ -35,8 +35,8 @@ public class MoviesDiggerServiceImpl implements MoviesDiggerService {
     private final MovieRatingResponseBodyMapper movieRatingResponseBodyMapper;
 
     @Override
-    public List<MovieWinnerResponseBodyItem> getWinner(String movieName) {
-        return syncService.getWinner(movieName);
+    public List<MovieWinnerResponseBodyItem> getWinner(String movieName, Integer year) {
+        return syncService.getWinner(movieName, year);
     }
 
     @Override
@@ -47,8 +47,8 @@ public class MoviesDiggerServiceImpl implements MoviesDiggerService {
     }
 
     @Override
-    public List<MovieResponseBodyItem> getMovies(String movieName) {
-        return syncService.getMovies(movieName);
+    public List<MovieResponseBodyItem> getMovies(String movieName, Integer year) {
+        return syncService.getMovies(movieName, year);
     }
 
     @Override

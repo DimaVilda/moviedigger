@@ -17,9 +17,14 @@ public interface MovieJpaRepository extends JpaRepository<Movie, String> {
             "from movie m")
     boolean isMovieTableEmpty();
 
+/*    @Query("select m from movie m " +
+            "where lower(m.name) like lower(concat('%', :movieName, '%') ) ")*/
     @Query("select m from movie m " +
-            "where lower(m.name) like lower(concat('%', :movieName, '%') ) ")
-    List<Movie> findMoviesByName(@Param("movieName") String movieName);
+            "where lower(m.name) like lower(concat('%', :movieName, '%')) " +
+            "and (:year IS NULL OR m.releaseYear = :year)")
+    List<Movie> findMoviesByNameAndOptionalYear(
+            @Param("movieName") String movieName,
+            @Param("year") Integer year);
 
     @Query("select m from movie m " +
             "join m.ratingList r " +

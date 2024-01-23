@@ -18,6 +18,14 @@ paths:
           in: path
           description: movie name
           required: true
+        - name: year
+          description: The release year of the movie
+          schema:
+            type: integer
+            minimum: 1927
+            maximum: 2010
+          in: query
+          required: false
       responses:
         '200':
           description: A list of oscar's best picture winner movies
@@ -28,8 +36,10 @@ paths:
               example:
                 - id: 466b8c0e-238e-46f3-9dba-dae01439bc26
                   name: 'The Lord of the Rings: The Return of the King'
+                  year: 2007
                 - id: e83dc6ae-caec-405f-9226-d7f60906c5ef
                   name: 'The Lord of the Rings: The Two Towers'
+                  year: 2005
         '400':
           description: Bad request. The parameters are not valid
           content:
@@ -94,6 +104,7 @@ paths:
                 - name: Titanic
                   rating: 9.1
                   boxOffice: 2000000090.78
+                  year: 1992
         '500':
           description: An unexpected condition was encountered
           content:
@@ -115,6 +126,14 @@ paths:
           required: true
           schema:
             type: string
+        - name: year
+          description: The release year of the movie
+          schema:
+            type: integer
+            minimum: 1927
+            maximum: 2010
+          in: query
+          required: false
       responses:
         '200':
           description: Movies response list
@@ -127,6 +146,7 @@ paths:
                   name: Titanic
                   rating: 9.1
                   boxOffice: 2000000090.78
+                  year: 1992
         '404':
           description: Provided movie not found
           content:
@@ -164,6 +184,7 @@ paths:
               example:
                 - name: Titanic
                   rating: 9.1
+                  year: 1991
         '400':
           description: Invalid rating value
           content:
@@ -240,12 +261,17 @@ components:
       required:
         - id
         - name
+        - year
       properties:
         id:
           $ref: 'common.yaml#/components/schemas/Uuid'
         name:
           description: Best picture movie name
           type: string
+        year:
+          description: Movie release year
+          type: integer
+          format: int32
     GetTopRatedMoviesResponseBody:
       type: array
       items:
@@ -260,6 +286,7 @@ components:
         - name
         - rating
         - boxOffice
+        - year
       properties:
         name:
           description: Top rated movie name
@@ -270,6 +297,10 @@ components:
         boxOffice:
           description: Movie's box office value
           type: string
+        year:
+          description: Movie release year
+          type: integer
+          format: int32
     MovieResponseBodyItem:
       type: object
       required:
@@ -277,6 +308,7 @@ components:
         - name
         - rating
         - boxOffice
+        - year
       properties:
         id:
           $ref: 'common.yaml#/components/schemas/Uuid'
@@ -289,11 +321,16 @@ components:
         boxOffice:
           description: Movie's box office value
           type: string
+        year:
+          description: Movie release year
+          type: integer
+          format: int32
     MovieRatingResponseBody:
       type: object
       required:
         - name
         - rating
+        - year
       properties:
         name:
           description: Rated movie name
@@ -301,6 +338,10 @@ components:
         rating:
           description: Rated movie rating
           type: string
+        year:
+          description: Movie release year
+          type: integer
+          format: int32
     MovieRatingRequestBody:
       type: object
       required:

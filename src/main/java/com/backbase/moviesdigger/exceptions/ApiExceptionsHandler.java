@@ -1,5 +1,7 @@
 package com.backbase.moviesdigger.exceptions;
 
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -84,5 +86,16 @@ public class ApiExceptionsHandler {
             errors.put(fieldName, errorMessage);
         });
         return errors;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ResponseEntity<Error> handleValidationExceptions(ConstraintViolationException ex) {
+        Error error = new Error();
+        error.setMessage(ex.getMessage());
+        error.setCode(400);
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }

@@ -13,6 +13,7 @@ import org.mapstruct.ReportingPolicy;
 public interface MovieRatingResponseBodyMapper {
 
     @Mapping(target = "rating", source = "avgRating")
+    @Mapping(target = "year", source = "releaseYear")
     MovieRatingResponseBody toMovieResponseBodyItemModel(
             Movie movie);
 }

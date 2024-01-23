@@ -19,6 +19,7 @@ public interface TopRatedMovieResponseBodyItemMapper {
 
     @Mapping(target = "boxOffice", source = "officeBoxValue")
     @Mapping(target = "rating", source = "avgRating")
+    @Mapping(target = "year", source = "releaseYear")
     TopRatedMovieResponseBodyItem toTopRatedMovieResponseBodyItemModel(
             Movie movie);
 }

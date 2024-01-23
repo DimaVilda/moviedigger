@@ -13,10 +13,11 @@ public interface MoviesDiggerService {
     /**
      *
      * @param movieName - movie name to check if this movie is Best Picture Oscar's winner
+     * @param year - movie's release year
      *
      * @return - {@link MovieWinnerResponseBodyItem} - Best Picture movie winners list
      */
-    List<MovieWinnerResponseBodyItem> getWinner(String movieName);
+    List<MovieWinnerResponseBodyItem> getWinner(String movieName, Integer year);
     /**
      *
      * @param sortDirection - sort direction of provided top-rated movies list
@@ -28,11 +29,12 @@ public interface MoviesDiggerService {
                                                           Sort.Direction sortDirection);
     /**
      *
-     * @param movieName - The movie's name to provide
+     * @param movieName - movie's name to retrieve by
+     * @param year - movie's release year
      *
      * @return - {@link MovieResponseBodyItem} - list of movies similar to provided movieName in request
      */
-    List<MovieResponseBodyItem> getMovies(String movieName);
+    List<MovieResponseBodyItem> getMovies(String movieName, Integer year);
 
     /**
      *
