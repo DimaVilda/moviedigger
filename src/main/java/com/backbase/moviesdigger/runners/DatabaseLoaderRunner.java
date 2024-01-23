@@ -15,6 +15,8 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @RequiredArgsConstructor
@@ -39,6 +41,7 @@ public class DatabaseLoaderRunner implements CommandLineRunner {
 
     private void initMovieTableByCSV() {
         List<Movie> moviesToSave = new ArrayList<>();
+        Pattern yearPattern = Pattern.compile("(\\d{4})");
 
         try (Reader in = new FileReader(CSV_FILE_PATH)) {
             CSVFormat format = CSVFormat.DEFAULT.builder()
@@ -56,6 +59,12 @@ public class DatabaseLoaderRunner implements CommandLineRunner {
                         Movie movie = new Movie();
                         movie.setName(record.get("Nominee"));
                         movie.setIsWinner("YES".equals(record.get("Won?")) ? 1 : 0);
+
+                        Matcher yearMatcher = yearPattern.matcher(record.get("Year"));
+                        if (yearMatcher.find()) {
+                            movie.setMovieYear(yearMatcher.group(1));
+                        }
+
                         moviesToSave.add(movie);
                     }
                 }

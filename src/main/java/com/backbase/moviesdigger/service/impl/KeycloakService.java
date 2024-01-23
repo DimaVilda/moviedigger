@@ -26,7 +26,7 @@ public class KeycloakService {
 
     private final KeycloakMethodsUtil keycloakMethodsUtil;
 
-    public Response createUserInKeycloak(Keycloak keycloak, UsersResource usersResource, String userName, String userPassword) {
+    public Response createUserInKeycloak(UsersResource usersResource, String userName, String userPassword) {
         log.debug("Trying to create new user {} in keycloak", userName);
 
         UserRepresentation userRepresentation = new UserRepresentation();
@@ -45,7 +45,6 @@ public class KeycloakService {
                     userName + ", try again or speak with admin");
         }
         return response;
-       // assignRealmRoleForUser(keycloak, usersResource, response, REALM_USER_ROLE);
     }
 
     public void deleteUserFromKeycloak(UsersResource usersResource, String userName) {

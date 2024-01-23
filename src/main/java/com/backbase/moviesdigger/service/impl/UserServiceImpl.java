@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
             throw new ConflictException("A user " + userName + " is already exist.");
         }
         Response responseFromKeycloak =
-                keycloakService.createUserInKeycloak(keycloak, usersResource, userName, userPassword);
+                keycloakService.createUserInKeycloak(usersResource, userName, userPassword);
         keycloakService.assignRealmRoleForUser(keycloak, usersResource, responseFromKeycloak, REALM_USER_ROLE);
     }
 

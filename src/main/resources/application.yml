@@ -37,6 +37,10 @@ moviesdigger:
     create: client-api/v1/users
     login: client-api/v1/users/login
     get-access-token: client-api/v1/users/token
+  movie-providers:
+    omdb:
+      api-key: 3293300e
+      base-url: https://www.omdbapi.com/
 
 keycloak:
   client:

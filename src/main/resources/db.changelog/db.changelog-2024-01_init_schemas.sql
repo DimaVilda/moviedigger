@@ -17,6 +17,7 @@ CREATE TABLE movie
     id               VARCHAR(255)  NOT NULL,
     name             VARCHAR(255)  NOT NULL,
     is_winner        INTEGER       NOT NULL,
+    movie_year       VARCHAR(255)  NOT NULL,
     office_box_value DECIMAL(13,3),
     avg_rating       DECIMAL(5,2),
 

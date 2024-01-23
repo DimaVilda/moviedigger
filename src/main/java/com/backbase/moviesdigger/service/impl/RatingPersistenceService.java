@@ -24,7 +24,7 @@ public class RatingPersistenceService {
         ratingJpaRepository.deleteById(ratingId);
     }
 
-    public List<Rating> findMovieRatings(String movieId) {
+    public List<Rating> getMovieRatings(String movieId) {
         return ratingJpaRepository.findRatingsByMovieId(movieId);
     }
 

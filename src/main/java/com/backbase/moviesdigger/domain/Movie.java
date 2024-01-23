@@ -19,7 +19,6 @@ public class Movie {
 
     @Id
     @EqualsAndHashCode.Include
-    //@GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid2")
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid2")
     @Column(name = "id", updatable = false, nullable = false, length = 36)
@@ -31,6 +30,10 @@ public class Movie {
 
     @Column(name = "is_winner", nullable = false)
     private Integer isWinner;
+
+    @EqualsAndHashCode.Include
+    @Column(name = "movie_year", nullable = false, length = 36)
+    private String movieYear;
 
     @Column(name = "office_box_value", precision = 13, scale = 3)
     private BigDecimal officeBoxValue;

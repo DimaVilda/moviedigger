@@ -3,11 +3,12 @@ package com.backbase.moviesdigger.service.impl;
 import com.backbase.moviesdigger.domain.Movie;
 import com.backbase.moviesdigger.exceptions.GeneralException;
 import com.backbase.moviesdigger.exceptions.NotFoundException;
+import com.backbase.moviesdigger.service.MovieProviderService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,31 +24,44 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-// api key is 3293300e
-public class OMDBService {
+public class OMDBService implements MovieProviderService {
 
-    private final String OMDB_API_KEY = "3293300e";
-    private final String OMDB_API_URL = "https://www.omdbapi.com/";
+    @Value("${moviesdigger.movie-providers.omdb.api-key}")
+    private String apiKey;
+    @Value("${moviesdigger.movie-providers.omdb.base-url}")
+    private String baseUrl;
 
-    public Movie getMovieByTitle(String movieName) {
-        MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
-        queryParams.add("apikey", OMDB_API_KEY);
-        queryParams.add("t", movieName);
-        queryParams.add("plot", "short");
-
+    @Override
+    public <T> T getMovieFieldByTitle(String movieName, String movieField, Class<T> className) {
         try {
-            ResponseEntity<String> omdbResponse = processOMDBAPI(
-                    OMDB_API_URL,
-                    HttpMethod.GET,
-                    queryParams,
-                    null,
-                    String.class
-            );
+            Map<String, Object> responseMap = fetchMovieDataWithRetry(movieName);
 
-            Map<String, Object> responseMap = new ObjectMapper().readValue(omdbResponse.getBody(), new TypeReference<>() {
-            });
-            checkIfMovieFound(responseMap, movieName);
+            if (responseMap.containsKey(movieField)) {
+                Object fieldValue = responseMap.get(movieField);
+                if (fieldValue == null || fieldValue.equals("N/A")) {
+                    return null;
+                }
+                if (movieField.equals("BoxOffice")) {
+                    return className.cast(parseBoxOfficeValue(fieldValue.toString()));
+                }
+                return className.cast(fieldValue);
+            } else {
+                log.warn("Provided field {} was not found in OMDB response", movieField);
+                throw new GeneralException("Field " + movieField + " not found in the response");
+            }
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("Request to OMDB service failed, reason is {}", e.getMessage());
+            throw new GeneralException("An unexpected condition was encountered when OMDB was requested, " +
+                    "reason is " + e.getMessage());
+        }
+    }
 
+    @Override
+    public Movie getMovieByTitle(String movieName) {
+        try {
+            Map<String, Object> responseMap = fetchMovieDataWithRetry(movieName);
             return mapResponseToMovieEntity(responseMap);
         } catch (NotFoundException e) {
             throw e;
@@ -58,13 +72,45 @@ public class OMDBService {
         }
     }
 
-    private void checkIfMovieFound(Map<String, Object> responseMap, String movieName) {
-        String errorResponse = (String) responseMap.get("Error");
-        if ("Movie not found!".equals(errorResponse)) {
-            log.warn("Movie {} was not found in OMDB service and in movieDigger database", movieName);
-
-            throw new NotFoundException("A movie " + movieName + " was not found");
+    private Map<String, Object> fetchMovieDataWithRetry(String movieName) throws Exception {
+        Map<String, Object> responseMap = fetchMovieData(movieName);
+        if (isMovieNotFound(responseMap)) {
+            if (movieName.contains(" ")) {
+                String firstWord = movieName.split("\\s+")[0];
+                responseMap = fetchMovieData(firstWord);
+                if (isMovieNotFound(responseMap)) {
+                    log.warn("Provided movie {} was not found", movieName);
+                    throw new NotFoundException("A movie " + movieName + " was not found");
+                }
+            } else {
+                log.warn("Provided movie {} was not found", movieName);
+                throw new NotFoundException("A movie " + movieName + " was not found");
+            }
         }
+        return responseMap;
+    }
+
+    private Map<String, Object> fetchMovieData(String movieName) throws Exception {
+        MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+        queryParams.add("apikey", apiKey);
+        queryParams.add("t", movieName);
+        queryParams.add("plot", "short");
+
+        ResponseEntity<String> omdbResponse = processAPI(
+                baseUrl,
+                HttpMethod.GET,
+                queryParams,
+                null,
+                String.class
+        );
+
+        return new ObjectMapper().readValue(omdbResponse.getBody(), new TypeReference<>() {
+        });
+    }
+
+    private boolean isMovieNotFound(Map<String, Object> responseMap) {
+        String errorResponse = (String) responseMap.get("Error");
+        return "Movie not found!".equals(errorResponse);
     }
 
     private Movie mapResponseToMovieEntity(Map<String, Object> responseMap) {
@@ -72,12 +118,15 @@ public class OMDBService {
 
         Movie movie = new Movie();
         movie.setName((String) responseMap.get("Title"));
+        movie.setMovieYear((String) responseMap.get("Year"));
 
         String awards = (String) responseMap.get("Awards");
-        if (awards != null && awards.equals("Best Picture")) {
+        if (awards != null && !awards.equals("N/A") &&
+                 awards.toLowerCase().contains("won") && awards.toLowerCase().contains("oscar")) {
             movie.setIsWinner(1);
+        } else {
+            movie.setIsWinner(0);
         }
-        movie.setIsWinner(0);
 
         String boxOffice = (String) responseMap.get("BoxOffice");
         if (boxOffice != null && !boxOffice.equals("N/A")) {
@@ -95,11 +144,11 @@ public class OMDBService {
         }
     }
 
-    private <T> ResponseEntity<T> processOMDBAPI(
-            String path,
-            HttpMethod method,
-            MultiValueMap<String, String> queryParams,
-            Object body, Class<T> responseType) throws RestClientException {
+    private <T> ResponseEntity<T> processAPI( //TODO could me moved to api service
+                                              String path,
+                                              HttpMethod method,
+                                              MultiValueMap<String, String> queryParams,
+                                              Object body, Class<T> responseType) throws RestClientException {
         log.debug("Trying to call OMDB api to {} movie with query params {}", method.toString(), queryParams.toString());
 
         RestTemplate restTemplate = new RestTemplate();

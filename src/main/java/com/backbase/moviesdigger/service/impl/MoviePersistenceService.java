@@ -23,12 +23,28 @@ public class MoviePersistenceService {
     public List<Movie> getMoviesByName(String movieName) {
         log.debug("Trying to retrieve movies by name {} from local store", movieName);
 
-        return movieJpaRepository.findMoviesByNameContainingIgnoreCase(movieName);
+        return movieJpaRepository.findMoviesByName(movieName);
+    }
+
+    public Movie getMovieByRatingId(String ratingId) {
+        log.debug("Trying to retrieve movie by rating {} from local store", ratingId);
+
+        return movieJpaRepository.findByRatingId(ratingId)
+                .orElseThrow(() -> {
+                    log.warn("Movie was not found by provided rating {}", ratingId);
+
+                    return new NotFoundException("Rating " + ratingId + " was not found");
+                });
     }
 
     @Transactional
     public Movie saveMovie(Movie movie) {
         return movieJpaRepository.save(movie);
+    }
+
+    @Transactional
+    public void saveAllMovies(List<Movie> moviesList) {
+        movieJpaRepository.saveAll(moviesList);
     }
 
     public Movie getMovieById(String movieId) {
@@ -40,7 +56,8 @@ public class MoviePersistenceService {
                 });
     }
 
-    public List<Movie> getTopRatedMoviesByUserRating() {
-        return movieJpaRepository.findTopByAvgRating();
+    public List<Movie> getTopRatedMoviesByUserRating(Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.Direction.DESC, "avgRating");
+        return movieJpaRepository.findAll(pageable).getContent();
     }
 }

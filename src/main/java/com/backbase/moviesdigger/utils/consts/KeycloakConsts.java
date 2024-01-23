@@ -1,6 +1,6 @@
 package com.backbase.moviesdigger.utils.consts;
 
-public class KeycloakConsts {
+public class KeycloakConsts { //todo if have a time - to appl yaml
 
     public static final String APPLICATION_REALM = "moviesdigger";
     public static final String APPLICATION_REALM_ID = "moviesdigger-realm-id";

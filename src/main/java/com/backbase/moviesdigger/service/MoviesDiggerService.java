@@ -1,9 +1,6 @@
 package com.backbase.moviesdigger.service;
 
-import com.backbase.moviesdigger.client.spec.model.MovieRatingRequestBody;
-import com.backbase.moviesdigger.client.spec.model.MovieRatingResponseBody;
-import com.backbase.moviesdigger.client.spec.model.MovieResponseBodyItem;
-import com.backbase.moviesdigger.client.spec.model.TopRatedMovieResponseBodyItem;
+import com.backbase.moviesdigger.client.spec.model.*;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -15,9 +12,16 @@ public interface MoviesDiggerService {
 
     /**
      *
+     * @param movieName - movie name to check if this movie is Best Picture Oscar's winner
+     *
+     * @return - {@link MovieWinnerResponseBodyItem} - Best Picture movie winners list
+     */
+    List<MovieWinnerResponseBodyItem> getWinner(String movieName);
+    /**
+     *
      * @param sortDirection - sort direction of provided top-rated movies list
      *
-     * @return - {@link TopRatedMovieResponseBodyItem} - list of top rated movies by office box value
+     * @return - {@link TopRatedMovieResponseBodyItem} - list of top-rated movies by office box value
      */
     List<TopRatedMovieResponseBodyItem> getTopRatedMovies(Integer page,
                                                           Integer pageSize,

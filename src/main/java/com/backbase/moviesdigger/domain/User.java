@@ -18,7 +18,6 @@ public class User {
 
     @Id
     @EqualsAndHashCode.Include
-    //@GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid2")
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid2")
     @Column(name = "id", updatable = false, nullable = false, length = 36)

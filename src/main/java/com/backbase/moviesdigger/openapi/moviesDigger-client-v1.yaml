@@ -8,7 +8,7 @@ paths:
     get:
       tags:
         - movieDiggerClient
-      summary: Check if movie is best picture oscar winner
+      summary: Indicates if movie is best picture oscar winner
       description: Returns the best picture oscar winner movie list by movie name parameter
       operationId: getWinner
       parameters:
@@ -27,9 +27,9 @@ paths:
                 $ref: "#/components/schemas/GetMovieWinnersResponseList"
               example:
                 - id: 466b8c0e-238e-46f3-9dba-dae01439bc26
-                  name: Titanic
+                  name: 'The Lord of the Rings: The Return of the King'
                 - id: e83dc6ae-caec-405f-9226-d7f60906c5ef
-                  name: Avatar
+                  name: 'The Lord of the Rings: The Two Towers'
         '400':
           description: Bad request. The parameters are not valid
           content:
@@ -127,40 +127,6 @@ paths:
                   name: Titanic
                   rating: 9.1
                   boxOffice: 2000000090.78
-        '404':
-          description: Provided movie not found
-          content:
-            application/json:
-              schema:
-                $ref: 'common.yaml#/components/schemas/Error'
-        '500':
-          description: An unexpected condition was encountered
-          content:
-            application/json:
-              schema:
-                $ref: 'common.yaml#/components/schemas/Error'
-
-  /client-api/v1/movies/{movieName}/rating:
-    get:
-      tags:
-        - movieDiggerClient
-      summary: Retrieve a rating of certain movie
-      description: Retrieves the rating of a movie specified by the movie name
-      operationId: getMovieRating
-      parameters:
-        - name: movieName
-          description: The name of the movie
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Retrieved rating value of certain movie ad movie name
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MovieRatingResponseBody'
         '404':
           description: Provided movie not found
           content:

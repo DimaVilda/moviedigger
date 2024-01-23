@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,22 +26,17 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<MovieRatingResponseBody> getMovieRating(String movieName) { //TODO by id ?
-        return null;
-    }
-
-    @Override
-    @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<List<MovieResponseBodyItem>> getMovies(String movieName) {
+    public ResponseEntity<List<MovieResponseBodyItem>> getMovies(String movieName) { // todo add year in response, maybe add to query param
         log.debug("Trying to retrieve movies by provided movie name {}", movieName);
 
         return new ResponseEntity<>(moviesDiggerService.getMovies(movieName),HttpStatus.OK);
     }
 
     @Override
+    @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
     public ResponseEntity<List<TopRatedMovieResponseBodyItem>> getTopRatedMovies(Integer page,
                                                                                  Integer pageSize,
-                                                                                 String sortDirection) { //TODO implementing now
+                                                                                 String sortDirection) { //todo add year in response
         log.debug("Trying to retrieve top rated movies for {} page of {} size, " +
                 "ordered by box office in {} direction",page, pageSize, sortDirection);
 
@@ -55,13 +49,15 @@ public class MoviesDiggerController implements MovieDiggerClientApi {
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<List<MovieWinnerResponseBodyItem>> getWinner(String movieName) {
-        return new ResponseEntity<>(Collections.emptyList(),HttpStatus.OK);
+    public ResponseEntity<List<MovieWinnerResponseBodyItem>> getWinner(String movieName) { //todo add year and check if was insetred already
+        log.debug("Trying to check if requested movie {} won a Best Picture", movieName);
+
+        return new ResponseEntity<>(moviesDiggerService.getWinner(movieName),HttpStatus.OK);
     }
 
     @Override
     @PreAuthorize("hasRole('" + REALM_USER_ROLE + "')")
-    public ResponseEntity<MovieRatingResponseBody> provideMovieRating(MovieRatingRequestBody movieRatingRequestBody) {
+    public ResponseEntity<MovieRatingResponseBody> provideMovieRating(MovieRatingRequestBody movieRatingRequestBody) { // add year in response
         log.debug("Trying to provide a rating {} to movie {}",
                 movieRatingRequestBody.getRating(),
                 movieRatingRequestBody.getMovieId());

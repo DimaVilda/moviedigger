@@ -29,7 +29,6 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
     private final KeycloakCleanup keycloakCleanup;
     private final KeycloakService keycloakService;
     private final UserPersistenceService userPersistenceService;
-    private final KeycloakMethodsUtil keycloakMethodsUtil;
     private String internalClientId;
 
     @Override
@@ -37,24 +36,23 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
         try {
             if (!isRealmExists()) {
                 log.debug("Creating application realm: {}", APPLICATION_REALM);
-                defineKeycloacPreset();
+                defineKeycloakPreset();
             } else {
                 log.debug("Realm {} already exists in keycloak, removing it", APPLICATION_REALM);
                 keycloakCleanup.removeRealm();
-                defineKeycloacPreset();
+                defineKeycloakPreset();
             }
         } catch (Exception e) {
             log.warn("Could not create application's keycloak configuration, reason is: {}", e.getMessage());
         }
     }
 
-    private void defineKeycloacPreset() {
+    private void defineKeycloakPreset() {
         createRealm();
         createClient();
         associateClientRoleToRealmRole(CLIENT_ADMIN_ROLE, REALM_ADMIN_ROLE);
         associateClientRoleToRealmRole(CLIENT_USER_ROLE, REALM_USER_ROLE);
         createAdminUser();
-        // loginAdminUser();
     }
 
     private boolean isRealmExists() {
@@ -123,17 +121,13 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
     }
 
     private void associateClientRoleToRealmRole(String clientRoleName, String realmRoleName) {
-        // Retrieve the client role
         RoleRepresentation clientRole = getClientRole(clientRoleName);
 
-        // Retrieve the realm role
         RoleRepresentation realmRole = getRealmRole(realmRoleName);
 
         if (clientRole != null && realmRole != null) {
-            // Get the realm role's resource
             RoleResource realmRoleResource = keycloak.realm(APPLICATION_REALM).roles().get(realmRole.getName());
 
-            // Add the client role to the realm role's composites
             realmRoleResource.addComposites(Collections.singletonList(clientRole));
             log.debug("Associated client role {} to realm role {}", clientRoleName, realmRoleName);
         } else {
@@ -150,32 +144,12 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
     }
 
     private void createAdminUser() {
-        keycloakService.createUserInKeycloak(
-                keycloak,
-                keycloak.realm(APPLICATION_REALM).users(),
+        UsersResource usersResource = keycloak.realm(APPLICATION_REALM).users();
+        Response responseFromKeycloak = keycloakService.createUserInKeycloak(
+                usersResource,
                 ADMIN_USER_NAME,
                 ADMIN_USER_PASSWORD);
+        keycloakService.assignRealmRoleForUser(keycloak, usersResource, responseFromKeycloak, REALM_ADMIN_ROLE);
         userPersistenceService.saveUser(ADMIN_USER_NAME);
-/*        UserRepresentation adminUser = new UserRepresentation();
-        adminUser.setUsername(ADMIN_USER_NAME);
-        adminUser.setEnabled(true);
-
-        CredentialRepresentation credential = new CredentialRepresentation();
-        credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue("admin");
-        adminUser.setCredentials(Collections.singletonList(credential));
-
-        Response response = keycloak.realm(APPLICATION_REALM).users().create(adminUser);
-
-        if (response.getStatus() == 201) {
-            keycloakService.assignRealmRoleForUser(keycloak,
-                    keycloak.realm(APPLICATION_REALM).users(),
-                    response,
-                    REALM_ADMIN_ROLE);
-        }*/
-    }
-
-    private void loginAdminUser() {
-        keycloakMethodsUtil.getUserTokensByUsernameAndPassword(ADMIN_USER_NAME, ADMIN_USER_PASSWORD);
     }
 }
