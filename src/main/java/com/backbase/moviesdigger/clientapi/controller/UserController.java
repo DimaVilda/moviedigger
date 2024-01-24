@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.REALM_ADMIN_ROLE;
@@ -24,8 +22,7 @@ public class UserController implements UserClientApi {
     private final UserService userService;
 
     @Override
-    public ResponseEntity<Void> createUser(@RequestBody
-                                               @Validated(UserCredsSequence.class)
+    public ResponseEntity<Void> createUser(@Validated(UserCredsSequence.class)
                                                UserInformationRequestBody userInformationRequestBody) {
         log.debug("Trying to create a new user {} ", userInformationRequestBody.getUserName());
 
@@ -35,14 +32,14 @@ public class UserController implements UserClientApi {
 
     @Override
     @PreAuthorize("hasRole('" + REALM_ADMIN_ROLE + "')")
-    public ResponseEntity<Void> deleteUser(@PathVariable String userName) {
+    public ResponseEntity<Void> deleteUser(String userName) {
         log.debug("Trying to delete a user {} ", userName);
 
         userService.deleteUser(userName);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @Override
-    public ResponseEntity<AccessTokenResponse> getAccessToken(@RequestBody AccessTokenRequestBody refreshTokenRequestBody) {
+    public ResponseEntity<AccessTokenResponse> getAccessToken(AccessTokenRequestBody refreshTokenRequestBody) {
         log.debug("Trying to get an access token for a user");
 
         return new ResponseEntity<>(userService.getAccessToken(
@@ -51,8 +48,7 @@ public class UserController implements UserClientApi {
     }
 
     @Override
-    public ResponseEntity<LoggedInUserResponse> userLogin(@RequestBody
-                                                              @Validated(UserCredsSequence.class)
+    public ResponseEntity<LoggedInUserResponse> userLogin(@Validated(UserCredsSequence.class)
                                                               UserInformationRequestBody userInformationRequestBody) {
         log.debug("Trying to log in a user {}", userInformationRequestBody.getUserName());
 

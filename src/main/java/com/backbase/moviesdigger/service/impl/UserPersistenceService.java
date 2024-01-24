@@ -32,7 +32,7 @@ public class UserPersistenceService {
     }
 
     public User findByUserName(String userName) {
-        log.debug("Trying to get user by name {}: ", userName);
+        log.debug("Trying to get user by name {} ", userName);
 
         return userJpaRepository
                 .findByNameIs(userName)

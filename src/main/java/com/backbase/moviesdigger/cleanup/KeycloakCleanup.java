@@ -10,7 +10,7 @@ import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.APPLICATION_
 
 @Component
 @Slf4j
-@Profile(value = {"default"})
+//@Profile(value = {"default"})
 public class KeycloakCleanup implements DisposableBean {
 
     private final Keycloak keycloak;

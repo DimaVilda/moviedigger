@@ -186,7 +186,7 @@ paths:
                   rating: 9.1
                   year: 1991
         '400':
-          description: Invalid rating value
+          description: Invalid rating or movie id value
           content:
             application/json:
               schema:

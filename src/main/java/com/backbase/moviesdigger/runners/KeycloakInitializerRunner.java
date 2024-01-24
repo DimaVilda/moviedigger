@@ -22,7 +22,7 @@ import static com.backbase.moviesdigger.utils.consts.KeycloakConsts.*;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile(value = "default")
+//@Profile(value = "default")
 public class KeycloakInitializerRunner implements CommandLineRunner {
 
     private final Keycloak keycloak;

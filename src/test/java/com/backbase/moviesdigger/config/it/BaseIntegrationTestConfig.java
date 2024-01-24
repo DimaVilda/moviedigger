@@ -5,6 +5,7 @@ import com.backbase.moviesdigger.repository.RatingJpaRepository;
 import com.backbase.moviesdigger.repository.UserJpaRepository;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.*;
+import org.keycloak.admin.client.Keycloak;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -20,6 +21,8 @@ public abstract class BaseIntegrationTestConfig {
     protected UserJpaRepository userJpaRepository;
     @Autowired
     protected MovieJpaRepository movieJpaRepository;
+    @Autowired
+    protected Keycloak keycloak;
 
     @Container
     @ServiceConnection
