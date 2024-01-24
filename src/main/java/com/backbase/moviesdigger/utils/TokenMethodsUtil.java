@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class TokenMethodsUtil {
-
-    //TODO I skip token verification by public key to make it simply, but in real big apps we have to adjust it using openid-connect/certs openid
     public String getUserTokenClaimValue(String token, String tokenClaim) {
         try {
             String[] parts = token.split("\\.");

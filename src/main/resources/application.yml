@@ -28,8 +28,8 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/moviesdigger
           jwk-set-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/certs
-          user-logout-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/logout
 
+#application's realm name, unsecured endpoints and OMDB properties
 moviesdigger:
   realm-name: moviesdigger
   public-endpoints:
@@ -39,9 +39,10 @@ moviesdigger:
     get-access-token: client-api/v1/users/token
   movie-providers:
     omdb:
-      api-key: 3293300e
+      api-key: 3293300e #replace it to your own omdb api key
       base-url: https://www.omdbapi.com/
 
+#keycloak initial setup
 keycloak:
   client:
     admin:
@@ -61,5 +62,6 @@ logging:
     org.hibernate.SQL: DEBUG
     org.springframework: INFO
 
+#application start port
 server:
   port: 8081
