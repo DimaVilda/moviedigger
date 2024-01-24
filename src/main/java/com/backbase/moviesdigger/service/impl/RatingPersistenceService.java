@@ -1,6 +1,5 @@
 package com.backbase.moviesdigger.service.impl;
 
-import com.backbase.moviesdigger.client.spec.model.MovieRatingRequestBody;
 import com.backbase.moviesdigger.domain.Movie;
 import com.backbase.moviesdigger.domain.Rating;
 import com.backbase.moviesdigger.domain.User;

@@ -17,7 +17,6 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.net.http.HttpResponse;
 import java.util.*;
@@ -38,7 +37,6 @@ public class UserServiceImpl implements UserService {
     private final BearerTokenModel tokenWrapper;
 
     @Override
-    @Transactional
     public void createUser(UserInformationRequestBody userInformationRequestBody) {
         String userName = userInformationRequestBody.getUserName();
         String userPassword = userInformationRequestBody.getPassword();

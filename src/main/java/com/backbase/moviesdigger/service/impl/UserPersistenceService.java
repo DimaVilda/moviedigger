@@ -26,6 +26,7 @@ public class UserPersistenceService {
             userJpaRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             log.warn("A try to create a new user with same ");
+
             throw new ConflictException("A user with the name " + userName + " already exists." +
                     "User name must be unique.");
         }
